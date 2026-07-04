@@ -1,0 +1,38 @@
+# Each file in this folder is one store category. The file name (without extension)
+# is the category id. Categories are shown alphabetically by their display name.
+#
+# icon:  base64: "<texture>"  -> rendered as a skull (SkullUtil)
+#        material: STONE      -> rendered as that material
+#        (neither)            -> defaults to STONE
+#
+# priority: manual item order, 1 = shown first, 10 = last (default 10)
+# Item placeholders in commands: %player%, %uuid%
+
+name: "<gold>Example Category"
+icon:
+  material: CHEST
+
+items:
+  example_rank:
+    name: "<green>Example Rank"
+    price: 1000
+    priority: 1
+    permission: ashstore.buy.example
+    lore:
+      - "<gray>An example purchasable rank."
+    icon:
+      material: DIAMOND
+    commands:
+      - "say %player% purchased the Example Rank!"
+
+  starter_kit:
+    name: "<aqua>Starter Kit"
+    price: 250
+    priority: 2
+    lore:
+      - "<gray>A handy starter kit to get going."
+    icon:
+      material: CHEST
+    commands:
+      - "give %player% oak_log 16"
+      - "give %player% bread 8"

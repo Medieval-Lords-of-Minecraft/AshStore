@@ -1,9 +1,17 @@
-name: AshTemplate
+name: AshStore
 version: '${project.version}'
-main: me.neoblade298.ashtemplate.AshTemplate
+main: me.neoblade298.ashstore.AshStore
 api-version: '1.21'
 depend: [NeoCore]
 commands:
-  at:
-    description: AshTemplate base command
-    permission: ashtemplate.general
+  ashstore:
+    description: Open the AshStore or manage AshCoins
+    aliases: [store, ashcoins]
+    permission: ashstore.use
+permissions:
+  ashstore.use:
+    description: Allows opening the store
+    default: true
+  ashstore.admin:
+    description: Allows managing AshCoins and reloading the store
+    default: op

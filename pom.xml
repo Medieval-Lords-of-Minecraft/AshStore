@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>me.neoblade298</groupId>
-    <artifactId>ashtemplate</artifactId>
+    <artifactId>ashstore</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>AshTemplate</name>
+    <name>AshStore</name>
 
     <properties>
         <java.version>25</java.version>
@@ -43,7 +43,7 @@
     </dependencies>
 
     <build>
-        <finalName>AshTemplate</finalName>
+        <finalName>AshStore</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
