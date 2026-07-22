@@ -6,21 +6,31 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
+import org.bukkit.entity.Player;
+
+import me.neoblade298.neocore.bukkit.util.Util;
 import me.neoblade298.neocore.shared.util.SQLInsertBuilder;
 import me.neoblade298.neocore.shared.util.SQLInsertBuilder.SQLAction;
 
 public class PlayerData {
 
+    private final Player player;
     private long coins;
 
     /** New player with default values */
-    public PlayerData() {
+    public PlayerData(Player player) {
+        this.player = player;
         this.coins = 0;
     }
 
     /** Load from SQL result */
-    public PlayerData(ResultSet rs) throws SQLException {
+    public PlayerData(Player player, ResultSet rs) throws SQLException {
+        this.player = player;
         this.coins = rs.getLong("coins");
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 
     public long getCoins() {
@@ -33,6 +43,8 @@ public class PlayerData {
 
     public void addCoins(long amount) {
         setCoins(this.coins + amount);
+		String symbol = amount > 0 ? "+" : "";
+		Util.msgRaw(player, "<yellow>" + symbol + amount + " AshCoins </yellow>(<gold>" + coins + "</gold>)");
     }
 
     public boolean canAfford(long amount) {
@@ -44,6 +56,7 @@ public class PlayerData {
         if (!canAfford(amount)) {
             return false;
         }
+        Util.msgRaw(player, "<yellow>-" + amount + " AshCoins </yellow>(<gold>" + coins + "</gold>)");
         coins -= amount;
         return true;
     }

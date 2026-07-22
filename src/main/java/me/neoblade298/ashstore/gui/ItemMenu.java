@@ -115,18 +115,18 @@ public class ItemMenu extends CoreInventory {
 
     private void purchase(StoreItem item) {
         if (item.hasPermission() && !p.hasPermission(item.getPermission())) {
-            Util.msg(p, "<red>You don't have access to purchase this item.");
+            Util.msgRaw(p, "<red>You don't have access to purchase this item.");
             return;
         }
 
         PlayerData data = PlayerManager.get(p);
         if (data == null) {
-            Util.msg(p, "<red>Your data hasn't loaded yet. Try again shortly.");
+            Util.msgRaw(p, "<red>Your data hasn't loaded yet. Try again shortly.");
             return;
         }
 
         if (!data.canAfford(item.getPrice())) {
-            Util.msg(p, "<red>You need <yellow>" + item.getPrice()
+            Util.msgRaw(p, "<red>You need <yellow>" + item.getPrice()
                     + "</yellow> AshCoins but only have <yellow>" + data.getCoins() + "</yellow>.");
             return;
         }
@@ -139,7 +139,7 @@ public class ItemMenu extends CoreInventory {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parsed);
         }
 
-        Util.msg(p, "<green>Purchase successful! You now have <yellow>"
+        Util.msgRaw(p, "<green>Purchase successful! You now have <yellow>"
                 + data.getCoins() + "</yellow> AshCoins.");
         build(); // refresh affordability/access hints
     }

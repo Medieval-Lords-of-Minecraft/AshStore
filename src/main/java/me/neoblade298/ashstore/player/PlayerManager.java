@@ -102,9 +102,9 @@ public class PlayerManager implements IOComponent {
             );
 
             if (rs.next()) {
-                data.put(uuid, new PlayerData(rs));
+                data.put(uuid, new PlayerData(p, rs));
             } else {
-                data.put(uuid, new PlayerData());
+                data.put(uuid, new PlayerData(p));
             }
         } catch (Exception e) {
             e.printStackTrace();
