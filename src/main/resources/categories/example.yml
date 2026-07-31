@@ -6,6 +6,7 @@
 #        (neither)            -> defaults to STONE
 #
 # priority: manual item order, 1 = shown first, 10 = last (default 10)
+# negate-permission: players with this permission will not see the item
 # Item placeholders in commands: %player%, %uuid%
 
 name: "<gold>Example Category"

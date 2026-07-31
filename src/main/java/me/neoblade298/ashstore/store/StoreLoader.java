@@ -47,6 +47,8 @@ public class StoreLoader implements FileLoader {
         long price = is.getInt("price", 0);
         int priority = is.getInt("priority", 10);
         String permission = is.contains("permission") ? is.getString("permission") : null;
+        String negatePermission = is.contains("negate-permission")
+            ? is.getString("negate-permission") : null;
 
         List<String> commands = is.contains("commands") ? is.getStringList("commands") : new ArrayList<>();
         List<String> lore = is.contains("lore") ? is.getStringList("lore") : new ArrayList<>();
@@ -57,6 +59,6 @@ public class StoreLoader implements FileLoader {
                 "Store item '" + key + "' has no commands; it will do nothing when purchased.");
         }
 
-        return new StoreItem(key, name, price, priority, permission, commands, lore, icon);
+        return new StoreItem(key, name, price, priority, permission, negatePermission, commands, lore, icon);
     }
 }

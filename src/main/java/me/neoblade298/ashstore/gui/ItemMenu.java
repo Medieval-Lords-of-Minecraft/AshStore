@@ -50,7 +50,7 @@ public class ItemMenu extends CoreInventory {
         inv.clear();
         slots.clear();
 
-        List<StoreItem> items = category.getItems();
+        List<StoreItem> items = getVisibleItems();
         int start = page * PAGE_SIZE;
         for (int i = 0; i < PAGE_SIZE; i++) {
             int idx = start + i;
@@ -72,6 +72,16 @@ public class ItemMenu extends CoreInventory {
             inv.setItem(SLOT_NEXT, CoreInventory.createButton(Material.ARROW,
                     Component.text("Next Page", NamedTextColor.YELLOW)));
         }
+    }
+
+    private List<StoreItem> getVisibleItems() {
+        List<StoreItem> items = new ArrayList<>();
+        for (StoreItem item : category.getItems()) {
+            if (!item.hasNegatePermission() || !p.hasPermission(item.getNegatePermission())) {
+                items.add(item);
+            }
+        }
+        return items;
     }
 
     private ItemStack renderItem(StoreItem item) {
@@ -102,7 +112,7 @@ public class ItemMenu extends CoreInventory {
             new ItemMenu(p, category, page - 1).openInventory();
             return;
         }
-        if (slot == SLOT_NEXT && (page + 1) * PAGE_SIZE < category.getItems().size()) {
+        if (slot == SLOT_NEXT && (page + 1) * PAGE_SIZE < getVisibleItems().size()) {
             new ItemMenu(p, category, page + 1).openInventory();
             return;
         }
@@ -114,6 +124,11 @@ public class ItemMenu extends CoreInventory {
     }
 
     private void purchase(StoreItem item) {
+        if (item.hasNegatePermission() && p.hasPermission(item.getNegatePermission())) {
+            build();
+            return;
+        }
+
         if (item.hasPermission() && !p.hasPermission(item.getPermission())) {
             Util.msgRaw(p, "<red>You don't have access to purchase this item.");
             return;

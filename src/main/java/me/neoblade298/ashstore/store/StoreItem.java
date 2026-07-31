@@ -2,7 +2,7 @@ package me.neoblade298.ashstore.store;
 
 import java.util.List;
 
-/** A single purchasable store item: one or more commands, a price, an optional permission, and an icon. */
+/** A single purchasable store item: commands, price, permissions, and an icon. */
 public class StoreItem {
 
     private final String id;
@@ -10,17 +10,19 @@ public class StoreItem {
     private final long price;
     private final int priority;
     private final String permission; // nullable
+    private final String negatePermission; // nullable
     private final List<String> commands;
     private final List<String> lore;
     private final StoreIcon icon;
 
     public StoreItem(String id, String name, long price, int priority, String permission,
-                     List<String> commands, List<String> lore, StoreIcon icon) {
+                     String negatePermission, List<String> commands, List<String> lore, StoreIcon icon) {
         this.id = id;
         this.name = name;
         this.price = price;
         this.priority = priority;
         this.permission = permission;
+        this.negatePermission = negatePermission;
         this.commands = commands;
         this.lore = lore;
         this.icon = icon;
@@ -49,6 +51,14 @@ public class StoreItem {
 
     public boolean hasPermission() {
         return permission != null && !permission.isEmpty();
+    }
+
+    public String getNegatePermission() {
+        return negatePermission;
+    }
+
+    public boolean hasNegatePermission() {
+        return negatePermission != null && !negatePermission.isEmpty();
     }
 
     public List<String> getCommands() {
