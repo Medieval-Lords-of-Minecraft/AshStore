@@ -25,7 +25,7 @@ public class StoreCategory {
         items.add(item);
     }
 
-    /** Orders items by manual priority (1 = highest, shown first). Stable for equal priorities. */
+    /** Preserves priority ordering for categories whose items do not configure slots. */
     public void sortItems() {
         items.sort(Comparator.comparingInt(StoreItem::getPriority));
     }

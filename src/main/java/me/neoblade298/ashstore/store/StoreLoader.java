@@ -45,6 +45,7 @@ public class StoreLoader implements FileLoader {
     private StoreItem loadItem(String key, Section is) {
         String name = is.getString("name", key);
         long price = is.getInt("price", 0);
+        int slot = is.getInt("slot", -1);
         int priority = is.getInt("priority", 10);
         String permission = is.contains("permission") ? is.getString("permission") : null;
         String negatePermission = is.contains("negate-permission")
@@ -59,6 +60,12 @@ public class StoreLoader implements FileLoader {
                 "Store item '" + key + "' has no commands; it will do nothing when purchased.");
         }
 
-        return new StoreItem(key, name, price, priority, permission, negatePermission, commands, lore, icon);
+        if (is.contains("slot") && (slot < 0 || slot >= 45)) {
+            AshStore.inst().getLogger().warning(
+                "Store item '" + key + "' has invalid slot " + slot + "; expected 0-44.");
+            slot = -1;
+        }
+
+        return new StoreItem(key, name, price, slot, priority, permission, negatePermission, commands, lore, icon);
     }
 }

@@ -8,6 +8,7 @@ public class StoreItem {
     private final String id;
     private final String name;
     private final long price;
+    private final int slot;
     private final int priority;
     private final String permission; // nullable
     private final String negatePermission; // nullable
@@ -15,11 +16,12 @@ public class StoreItem {
     private final List<String> lore;
     private final StoreIcon icon;
 
-    public StoreItem(String id, String name, long price, int priority, String permission,
+    public StoreItem(String id, String name, long price, int slot, int priority, String permission,
                      String negatePermission, List<String> commands, List<String> lore, StoreIcon icon) {
         this.id = id;
         this.name = name;
         this.price = price;
+        this.slot = slot;
         this.priority = priority;
         this.permission = permission;
         this.negatePermission = negatePermission;
@@ -32,7 +34,15 @@ public class StoreItem {
         return id;
     }
 
-    /** Manual sort order, 1 = highest priority (shown first), 10 = lowest. */
+    public int getSlot() {
+        return slot;
+    }
+
+    public boolean hasSlot() {
+        return slot >= 0;
+    }
+
+    /** Lower values win when multiple visible items target the same slot. */
     public int getPriority() {
         return priority;
     }

@@ -51,6 +51,47 @@ public class ItemMenu extends CoreInventory {
         slots.clear();
 
         List<StoreItem> items = getVisibleItems();
+        if (category.getItems().stream().anyMatch(StoreItem::hasSlot)) {
+            buildSlotted(items);
+        } else {
+            buildPaged(items);
+        }
+
+        inv.setItem(SLOT_BACK, CoreInventory.createButton(Material.BARRIER,
+                Component.text("Back", NamedTextColor.RED)));
+    }
+
+    private void buildSlotted(List<StoreItem> items) {
+        for (StoreItem item : items) {
+            if (!item.hasSlot()) {
+                continue;
+            }
+            StoreItem current = slots.get(item.getSlot());
+            if (current == null || item.getPriority() < current.getPriority()) {
+                slots.put(item.getSlot(), item);
+            }
+        }
+
+        int nextSlot = 0;
+        for (StoreItem item : items) {
+            if (item.hasSlot()) {
+                continue;
+            }
+            while (nextSlot < PAGE_SIZE && slots.containsKey(nextSlot)) {
+                nextSlot++;
+            }
+            if (nextSlot >= PAGE_SIZE) {
+                break;
+            }
+            slots.put(nextSlot++, item);
+        }
+
+        for (var entry : slots.entrySet()) {
+            inv.setItem(entry.getKey(), renderItem(entry.getValue()));
+        }
+    }
+
+    private void buildPaged(List<StoreItem> items) {
         int start = page * PAGE_SIZE;
         for (int i = 0; i < PAGE_SIZE; i++) {
             int idx = start + i;
@@ -62,8 +103,6 @@ public class ItemMenu extends CoreInventory {
             slots.put(i, item);
         }
 
-        inv.setItem(SLOT_BACK, CoreInventory.createButton(Material.BARRIER,
-                Component.text("Back", NamedTextColor.RED)));
         if (page > 0) {
             inv.setItem(SLOT_PREV, CoreInventory.createButton(Material.ARROW,
                     Component.text("Previous Page", NamedTextColor.YELLOW)));
@@ -108,11 +147,12 @@ public class ItemMenu extends CoreInventory {
             new CategoryMenu(p).openInventory();
             return;
         }
-        if (slot == SLOT_PREV && page > 0) {
+        boolean slotted = category.getItems().stream().anyMatch(StoreItem::hasSlot);
+        if (!slotted && slot == SLOT_PREV && page > 0) {
             new ItemMenu(p, category, page - 1).openInventory();
             return;
         }
-        if (slot == SLOT_NEXT && (page + 1) * PAGE_SIZE < getVisibleItems().size()) {
+        if (!slotted && slot == SLOT_NEXT && (page + 1) * PAGE_SIZE < getVisibleItems().size()) {
             new ItemMenu(p, category, page + 1).openInventory();
             return;
         }

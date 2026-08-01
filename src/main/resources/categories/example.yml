@@ -5,7 +5,8 @@
 #        material: STONE      -> rendered as that material
 #        (neither)            -> defaults to STONE
 #
-# priority: manual item order, 1 = shown first, 10 = last (default 10)
+# slot: inventory slot from 0-44; omitted slots are filled automatically
+# priority: lower values win when visible items share a slot (default 10)
 # negate-permission: players with this permission will not see the item
 # Item placeholders in commands: %player%, %uuid%
 
@@ -17,6 +18,7 @@ items:
   example_rank:
     name: "<green>Example Rank"
     price: 1000
+    slot: 10
     priority: 1
     permission: ashstore.buy.example
     lore:
@@ -29,6 +31,7 @@ items:
   starter_kit:
     name: "<aqua>Starter Kit"
     price: 250
+    slot: 12
     priority: 2
     lore:
       - "<gray>A handy starter kit to get going."
