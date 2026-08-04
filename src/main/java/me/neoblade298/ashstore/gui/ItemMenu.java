@@ -116,7 +116,8 @@ public class ItemMenu extends CoreInventory {
     private List<StoreItem> getVisibleItems() {
         List<StoreItem> items = new ArrayList<>();
         for (StoreItem item : category.getItems()) {
-            if (!item.hasNegatePermission() || !p.hasPermission(item.getNegatePermission())) {
+            if ((!item.hasViewPermission() || p.hasPermission(item.getViewPermission()))
+                    && (!item.hasNegatePermission() || !p.hasPermission(item.getNegatePermission()))) {
                 items.add(item);
             }
         }
@@ -128,12 +129,14 @@ public class ItemMenu extends CoreInventory {
         for (String line : item.getLore()) {
             lore.add(NeoCore.miniMessage().deserialize(line));
         }
-        lore.add(Component.empty());
-        lore.add(NeoCore.miniMessage().deserialize("<gold>Price: <yellow>" + item.getPrice() + "</yellow> AshCoins"));
-        if (item.hasPermission() && !p.hasPermission(item.getPermission())) {
-            lore.add(NeoCore.miniMessage().deserialize("<red>You don't have access to this item"));
-        } else {
-            lore.add(NeoCore.miniMessage().deserialize("<green>Click to purchase"));
+        if (item.isPurchasable()) {
+            lore.add(Component.empty());
+            lore.add(NeoCore.miniMessage().deserialize("<gold>Price: <yellow>" + item.getPrice() + "</yellow> AshCoins"));
+            if (item.hasPermission() && !p.hasPermission(item.getPermission())) {
+                lore.add(NeoCore.miniMessage().deserialize("<red>You don't have access to this item"));
+            } else {
+                lore.add(NeoCore.miniMessage().deserialize("<green>Click to purchase"));
+            }
         }
         return item.getIcon().build(NeoCore.miniMessage().deserialize(item.getName()), lore);
     }
@@ -158,7 +161,7 @@ public class ItemMenu extends CoreInventory {
         }
 
         StoreItem item = slots.get(slot);
-        if (item != null) {
+        if (item != null && item.isPurchasable()) {
             purchase(item);
         }
     }

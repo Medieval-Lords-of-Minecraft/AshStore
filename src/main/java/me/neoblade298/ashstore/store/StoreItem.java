@@ -2,7 +2,7 @@ package me.neoblade298.ashstore.store;
 
 import java.util.List;
 
-/** A single purchasable store item: commands, price, permissions, and an icon. */
+/** A store menu item with optional purchase behavior and visibility requirements. */
 public class StoreItem {
 
     private final String id;
@@ -10,19 +10,24 @@ public class StoreItem {
     private final long price;
     private final int slot;
     private final int priority;
+    private final boolean purchasable;
+    private final String viewPermission; // nullable
     private final String permission; // nullable
     private final String negatePermission; // nullable
     private final List<String> commands;
     private final List<String> lore;
     private final StoreIcon icon;
 
-    public StoreItem(String id, String name, long price, int slot, int priority, String permission,
-                     String negatePermission, List<String> commands, List<String> lore, StoreIcon icon) {
+    public StoreItem(String id, String name, long price, int slot, int priority, boolean purchasable,
+                     String viewPermission, String permission, String negatePermission,
+                     List<String> commands, List<String> lore, StoreIcon icon) {
         this.id = id;
         this.name = name;
         this.price = price;
         this.slot = slot;
         this.priority = priority;
+        this.purchasable = purchasable;
+        this.viewPermission = viewPermission;
         this.permission = permission;
         this.negatePermission = negatePermission;
         this.commands = commands;
@@ -45,6 +50,18 @@ public class StoreItem {
     /** Lower values win when multiple visible items target the same slot. */
     public int getPriority() {
         return priority;
+    }
+
+    public boolean isPurchasable() {
+        return purchasable;
+    }
+
+    public String getViewPermission() {
+        return viewPermission;
+    }
+
+    public boolean hasViewPermission() {
+        return viewPermission != null && !viewPermission.isEmpty();
     }
 
     public String getName() {

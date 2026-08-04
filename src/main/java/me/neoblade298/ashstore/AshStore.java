@@ -42,8 +42,12 @@ public class AshStore extends JavaPlugin {
     }
 
     private void saveDefaultCategory() {
-        File example = new File(getDataFolder(), "categories/example.yml");
-        if (!example.exists()) {
+        File folder = new File(getDataFolder(), "categories");
+        File[] categories = folder.listFiles((dir, name) -> {
+            String lowerName = name.toLowerCase();
+            return lowerName.endsWith(".yml") || lowerName.endsWith(".yaml");
+        });
+        if (categories == null || categories.length == 0) {
             saveResource("categories/example.yml", false);
         }
     }

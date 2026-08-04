@@ -47,6 +47,8 @@ public class StoreLoader implements FileLoader {
         long price = is.getInt("price", 0);
         int slot = is.getInt("slot", -1);
         int priority = is.getInt("priority", 10);
+        boolean purchasable = is.getBoolean("purchasable", true);
+        String viewPermission = is.contains("view-permission") ? is.getString("view-permission") : null;
         String permission = is.contains("permission") ? is.getString("permission") : null;
         String negatePermission = is.contains("negate-permission")
             ? is.getString("negate-permission") : null;
@@ -55,7 +57,7 @@ public class StoreLoader implements FileLoader {
         List<String> lore = is.contains("lore") ? is.getStringList("lore") : new ArrayList<>();
         StoreIcon icon = StoreIcon.from(is.contains("icon") ? is.getSection("icon") : null);
 
-        if (commands.isEmpty()) {
+        if (purchasable && commands.isEmpty()) {
             AshStore.inst().getLogger().warning(
                 "Store item '" + key + "' has no commands; it will do nothing when purchased.");
         }
@@ -66,6 +68,7 @@ public class StoreLoader implements FileLoader {
             slot = -1;
         }
 
-        return new StoreItem(key, name, price, slot, priority, permission, negatePermission, commands, lore, icon);
+        return new StoreItem(key, name, price, slot, priority, purchasable, viewPermission,
+            permission, negatePermission, commands, lore, icon);
     }
 }

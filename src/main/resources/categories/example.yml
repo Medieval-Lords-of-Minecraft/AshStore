@@ -7,7 +7,12 @@
 #
 # slot: inventory slot from 0-44; omitted slots are filled automatically
 # priority: lower values win when visible items share a slot (default 10)
+# purchasable: false makes an informational icon with no price or click action (default true)
+# view-permission: only players with this permission will see the item
 # negate-permission: players with this permission will not see the item
+#
+# To replace a shop item after purchase, give it negate-permission and add a
+# non-purchasable item in the same slot with the matching view-permission.
 # Item placeholders in commands: %player%, %uuid%
 
 name: "<gold>Example Category"
