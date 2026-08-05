@@ -17,8 +17,8 @@
 #
 # Optional details menus use keyed groups under details.groups. Group slots are
 # 0-44 and may be omitted for automatic placement. The back and purchase buttons
-# accept slots 0-53 and default to 45 and 49. Every purchase is confirmed in a
-# standard confirmation menu, whether or not the item has a details menu.
+# accept slots 0-53 and default to 45 and 49. Every purchase is confirmed with a
+# native Paper dialog, whether or not the item has a details menu.
 
 name: "<gold>Example Category"
 icon:

@@ -95,8 +95,7 @@ public class ItemDetailsMenu extends CoreInventory {
         if (slot == details.getBackSlot()) {
             parent.openInventory();
         } else if (item.isPurchasable() && slot == details.getPurchaseSlot()) {
-            new PurchaseConfirmationMenu(p, item, () -> parent.purchase(item), this::openInventory)
-                    .openInventory();
+            PurchaseConfirmationDialog.show(p, item, () -> parent.purchase(item));
         }
     }
 

@@ -170,8 +170,7 @@ public class ItemMenu extends CoreInventory {
             if (item.hasDetails()) {
                 new ItemDetailsMenu(p, item, this).openInventory();
             } else {
-                new PurchaseConfirmationMenu(p, item, () -> purchase(item), this::openInventory)
-                        .openInventory();
+                PurchaseConfirmationDialog.show(p, item, () -> purchase(item));
             }
         } else if (item != null && item.hasDetails()) {
             new ItemDetailsMenu(p, item, this).openInventory();
