@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Material;
+
 import me.neoblade298.ashstore.AshStore;
 import me.neoblade298.neocore.bukkit.io.FileLoader;
 import me.neoblade298.neocore.shared.io.Config;
@@ -56,6 +58,8 @@ public class StoreLoader implements FileLoader {
         List<String> commands = is.contains("commands") ? is.getStringList("commands") : new ArrayList<>();
         List<String> lore = is.contains("lore") ? is.getStringList("lore") : new ArrayList<>();
         StoreIcon icon = StoreIcon.from(is.contains("icon") ? is.getSection("icon") : null);
+        StoreItemDetails details = is.contains("details")
+            ? loadDetails(key, name, is.getSection("details")) : null;
 
         if (purchasable && commands.isEmpty()) {
             AshStore.inst().getLogger().warning(
@@ -69,6 +73,72 @@ public class StoreLoader implements FileLoader {
         }
 
         return new StoreItem(key, name, price, slot, priority, purchasable, viewPermission,
-            permission, negatePermission, commands, lore, icon);
+            permission, negatePermission, commands, lore, icon, details);
+    }
+
+    private StoreItemDetails loadDetails(String itemKey, String itemName, Section ds) {
+        String title = ds.getString("title", itemName);
+        List<StoreItemDetailGroup> groups = new ArrayList<>();
+
+        if (ds.contains("groups")) {
+            Section groupSection = ds.getSection("groups");
+            for (String groupKey : groupSection.getKeys()) {
+                Section gs = groupSection.getSection(groupKey);
+                if (gs == null) {
+                    continue;
+                }
+
+                int slot = gs.getInt("slot", -1);
+                if (gs.contains("slot") && (slot < 0 || slot >= 45)) {
+                    AshStore.inst().getLogger().warning(
+                        "Detail group '" + itemKey + "." + groupKey + "' has invalid slot "
+                            + slot + "; expected 0-44. It will be placed automatically.");
+                    slot = -1;
+                }
+
+                groups.add(new StoreItemDetailGroup(
+                    groupKey,
+                    gs.getString("name", groupKey),
+                    slot,
+                    gs.contains("lore") ? gs.getStringList("lore") : new ArrayList<>(),
+                    StoreIcon.from(gs.contains("icon") ? gs.getSection("icon") : null)));
+            }
+        }
+
+        int purchaseSlot = 49;
+        String purchaseName = "<green>Purchase " + itemName;
+        StoreIcon purchaseIcon = new StoreIcon(null, Material.LIME_CONCRETE);
+        if (ds.contains("purchase")) {
+            Section ps = ds.getSection("purchase");
+            purchaseSlot = validMenuSlot(itemKey, "purchase", ps.getInt("slot", purchaseSlot), 49);
+            purchaseName = ps.getString("name", purchaseName);
+            if (ps.contains("icon")) {
+                purchaseIcon = StoreIcon.from(ps.getSection("icon"));
+            }
+        }
+
+        int backSlot = 45;
+        if (ds.contains("back")) {
+            Section bs = ds.getSection("back");
+            backSlot = validMenuSlot(itemKey, "back", bs.getInt("slot", backSlot), 45);
+        }
+        if (purchaseSlot == backSlot) {
+            AshStore.inst().getLogger().warning(
+                "Store item '" + itemKey + "' uses slot " + backSlot
+                    + " for both details buttons; purchase will use slot 49.");
+            purchaseSlot = 49;
+        }
+
+        return new StoreItemDetails(title, groups, purchaseSlot, purchaseName, purchaseIcon, backSlot);
+    }
+
+    private int validMenuSlot(String itemKey, String button, int slot, int fallback) {
+        if (slot >= 0 && slot < 54) {
+            return slot;
+        }
+        AshStore.inst().getLogger().warning(
+            "Store item '" + itemKey + "' has invalid details " + button + " slot "
+                + slot + "; expected 0-53. Using " + fallback + ".");
+        return fallback;
     }
 }

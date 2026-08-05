@@ -134,9 +134,14 @@ public class ItemMenu extends CoreInventory {
             lore.add(NeoCore.miniMessage().deserialize("<gold>Price: <yellow>" + item.getPrice() + "</yellow> AshCoins"));
             if (item.hasPermission() && !p.hasPermission(item.getPermission())) {
                 lore.add(NeoCore.miniMessage().deserialize("<red>You don't have access to this item"));
+            } else if (item.hasDetails()) {
+                lore.add(NeoCore.miniMessage().deserialize("<green>Click to view details"));
             } else {
                 lore.add(NeoCore.miniMessage().deserialize("<green>Click to purchase"));
             }
+        } else if (item.hasDetails()) {
+            lore.add(Component.empty());
+            lore.add(NeoCore.miniMessage().deserialize("<green>Click to view details"));
         }
         return item.getIcon().build(NeoCore.miniMessage().deserialize(item.getName()), lore);
     }
@@ -162,30 +167,41 @@ public class ItemMenu extends CoreInventory {
 
         StoreItem item = slots.get(slot);
         if (item != null && item.isPurchasable()) {
-            purchase(item);
+            if (item.hasDetails()) {
+                new ItemDetailsMenu(p, item, this).openInventory();
+            } else {
+                new PurchaseConfirmationMenu(p, item, () -> purchase(item), this::openInventory)
+                        .openInventory();
+            }
+        } else if (item != null && item.hasDetails()) {
+            new ItemDetailsMenu(p, item, this).openInventory();
         }
     }
 
-    private void purchase(StoreItem item) {
+    void purchase(StoreItem item) {
         if (item.hasNegatePermission() && p.hasPermission(item.getNegatePermission())) {
             build();
+            openInventory();
             return;
         }
 
         if (item.hasPermission() && !p.hasPermission(item.getPermission())) {
             Util.msgRaw(p, "<red>You don't have access to purchase this item.");
+            openInventory();
             return;
         }
 
         PlayerData data = PlayerManager.get(p);
         if (data == null) {
             Util.msgRaw(p, "<red>Your data hasn't loaded yet. Try again shortly.");
+            openInventory();
             return;
         }
 
         if (!data.canAfford(item.getPrice())) {
             Util.msgRaw(p, "<red>You need <yellow>" + item.getPrice()
                     + "</yellow> AshCoins but only have <yellow>" + data.getCoins() + "</yellow>.");
+            openInventory();
             return;
         }
 
@@ -199,7 +215,8 @@ public class ItemMenu extends CoreInventory {
 
         Util.msgRaw(p, "<green>Purchase successful! You now have <yellow>"
                 + data.getCoins() + "</yellow> AshCoins.");
-        build(); // refresh affordability/access hints
+        build();
+        openInventory();
     }
 
     @Override

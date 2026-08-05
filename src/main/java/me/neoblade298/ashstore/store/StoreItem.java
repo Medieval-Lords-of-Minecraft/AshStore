@@ -17,10 +17,12 @@ public class StoreItem {
     private final List<String> commands;
     private final List<String> lore;
     private final StoreIcon icon;
+    private final StoreItemDetails details; // nullable
 
     public StoreItem(String id, String name, long price, int slot, int priority, boolean purchasable,
                      String viewPermission, String permission, String negatePermission,
-                     List<String> commands, List<String> lore, StoreIcon icon) {
+                     List<String> commands, List<String> lore, StoreIcon icon,
+                     StoreItemDetails details) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -33,6 +35,7 @@ public class StoreItem {
         this.commands = commands;
         this.lore = lore;
         this.icon = icon;
+        this.details = details;
     }
 
     public String getId() {
@@ -98,5 +101,13 @@ public class StoreItem {
 
     public StoreIcon getIcon() {
         return icon;
+    }
+
+    public boolean hasDetails() {
+        return details != null;
+    }
+
+    public StoreItemDetails getDetails() {
+        return details;
     }
 }

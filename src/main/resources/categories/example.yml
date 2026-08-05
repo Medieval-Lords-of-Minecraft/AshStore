@@ -14,6 +14,11 @@
 # To replace a shop item after purchase, give it negate-permission and add a
 # non-purchasable item in the same slot with the matching view-permission.
 # Item placeholders in commands: %player%, %uuid%
+#
+# Optional details menus use keyed groups under details.groups. Group slots are
+# 0-44 and may be omitted for automatic placement. The back and purchase buttons
+# accept slots 0-53 and default to 45 and 49. Every purchase is confirmed in a
+# standard confirmation menu, whether or not the item has a details menu.
 
 name: "<gold>Example Category"
 icon:
@@ -28,10 +33,41 @@ items:
     permission: ashstore.buy.example
     lore:
       - "<gray>An example purchasable rank."
+      - "<dark_gray>Click to view all perks."
     icon:
       material: DIAMOND
     commands:
       - "say %player% purchased the Example Rank!"
+    details:
+      title: "<gold>Example Rank Perks"
+      groups:
+        homes:
+          name: "<yellow>Homes & Travel"
+          slot: 10
+          icon:
+            material: COMPASS
+          lore:
+            - "<gray>- Set up to <white>10 homes"
+            - "<gray>- Access to <white>/back"
+            - "<gray>- Shorter teleport delay"
+
+        cosmetics:
+          name: "<light_purple>Cosmetics"
+          slot: 12
+          icon:
+            material: FIREWORK_ROCKET
+          lore:
+            - "<gray>- Exclusive particle effects"
+            - "<gray>- Colored private messages"
+
+      purchase:
+        slot: 49
+        name: "<green>Purchase Example Rank"
+        icon:
+          material: LIME_CONCRETE
+
+      back:
+        slot: 45
 
   starter_kit:
     name: "<aqua>Starter Kit"
