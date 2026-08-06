@@ -11,6 +11,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 
+import me.neoblade298.ashstore.AshStore;
 import me.neoblade298.ashstore.store.StoreItem;
 import me.neoblade298.ashstore.store.StoreItemDetailGroup;
 import me.neoblade298.ashstore.store.StoreItemDetails;
@@ -77,8 +78,9 @@ public class ItemDetailsMenu extends CoreInventory {
 
     private org.bukkit.inventory.ItemStack renderPurchaseButton() {
         List<Component> lore = new ArrayList<>();
+        long price = AshStore.inst().getSaleManager().getPrice(item.getPrice());
         lore.add(NeoCore.miniMessage().deserialize(
-                "<gold>Price: <yellow>" + item.getPrice() + "</yellow> AshCoins"));
+            "<gold>Price: <yellow>" + price + "</yellow> AshCoins"));
         if (item.hasPermission() && !p.hasPermission(item.getPermission())) {
             lore.add(NeoCore.miniMessage().deserialize("<red>You don't have access to this item"));
         } else {

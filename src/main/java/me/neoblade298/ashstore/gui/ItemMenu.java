@@ -12,6 +12,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.ItemStack;
 
+import me.neoblade298.ashstore.AshStore;
 import me.neoblade298.ashstore.player.PlayerData;
 import me.neoblade298.ashstore.player.PlayerManager;
 import me.neoblade298.ashstore.store.StoreCategory;
@@ -21,6 +22,7 @@ import me.neoblade298.neocore.bukkit.inventories.CoreInventory;
 import me.neoblade298.neocore.bukkit.util.Util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 /** Menu listing the items of a single category, with paging and purchase handling. */
 public class ItemMenu extends CoreInventory {
@@ -130,8 +132,9 @@ public class ItemMenu extends CoreInventory {
             lore.add(NeoCore.miniMessage().deserialize(line));
         }
         if (item.isPurchasable()) {
+            long price = AshStore.inst().getSaleManager().getPrice(item.getPrice());
             lore.add(Component.empty());
-            lore.add(NeoCore.miniMessage().deserialize("<gold>Price: <yellow>" + item.getPrice() + "</yellow> AshCoins"));
+            lore.add(NeoCore.miniMessage().deserialize("<gold>Price: <yellow>" + price + "</yellow> AshCoins"));
             if (item.hasPermission() && !p.hasPermission(item.getPermission())) {
                 lore.add(NeoCore.miniMessage().deserialize("<red>You don't have access to this item"));
             } else if (item.hasDetails()) {
@@ -197,14 +200,15 @@ public class ItemMenu extends CoreInventory {
             return;
         }
 
-        if (!data.canAfford(item.getPrice())) {
-            Util.msgRaw(p, "<red>You need <yellow>" + item.getPrice()
+        long price = AshStore.inst().getSaleManager().getPrice(item.getPrice());
+        if (!data.canAfford(price)) {
+            Util.msgRaw(p, "<red>You need <yellow>" + price
                     + "</yellow> AshCoins but only have <yellow>" + data.getCoins() + "</yellow>.");
             openInventory();
             return;
         }
 
-        data.deduct(item.getPrice());
+        data.deduct(price);
         for (String cmd : item.getCommands()) {
             String parsed = cmd
                     .replace("%player%", p.getName())
@@ -212,8 +216,11 @@ public class ItemMenu extends CoreInventory {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parsed);
         }
 
-        Util.msgRaw(p, "<green>Purchase successful! You now have <yellow>"
-                + data.getCoins() + "</yellow> AshCoins.");
+        String message = AshStore.inst().getConfig().getString("messages.purchase",
+            "<green><player>, you successfully purchased <item>!");
+        p.sendMessage(NeoCore.miniMessage().deserialize(message,
+            Placeholder.unparsed("player", p.getName()),
+            Placeholder.parsed("item", item.getName())));
         build();
         openInventory();
     }

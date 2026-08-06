@@ -49,6 +49,8 @@ public class CmdAshStore implements CommandExecutor, TabCompleter {
                     Util.msgRaw(sender, "<red>You don't have permission to do that.");
                     return true;
                 }
+                AshStore.inst().reloadConfig();
+                AshStore.inst().getSaleManager().reload();
                 StoreManager.reload();
                 Util.msgRaw(sender, "<green>Reloaded " + StoreManager.getCategories().size() + " store categorie(s).");
             }

@@ -1,0 +1,18 @@
+# MiniMessage shown to the purchasing player after a successful purchase.
+# Placeholders: <player>, <item>
+messages:
+  purchase: "<green><player>, you successfully purchased <item>!"
+
+# Annual sales use machine-local time. Start and end are MM-dd dates; both days
+# are included, and each boundary is midnight. Cross-year periods are supported.
+# If sales overlap, the largest discount is applied. Prices are rounded to the
+# nearest whole AshCoin.
+# Sale message placeholders: <sale>, <discount>
+sales:
+  example:
+    enabled: false
+    name: "Annual Sale"
+    start: "12-20"
+    end: "12-31"
+    discount-percent: 20
+    start-message: "<green><sale> has started! All store items are <yellow><discount>% off</yellow>."

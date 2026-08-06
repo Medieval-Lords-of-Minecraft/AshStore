@@ -10,6 +10,7 @@ import io.papermc.paper.registry.data.dialog.DialogBase;
 import io.papermc.paper.registry.data.dialog.DialogInstancesProvider;
 import io.papermc.paper.registry.data.dialog.action.DialogAction;
 import io.papermc.paper.registry.data.dialog.body.DialogBody;
+import me.neoblade298.ashstore.AshStore;
 import me.neoblade298.ashstore.store.StoreItem;
 import me.neoblade298.neocore.bukkit.NeoCore;
 import net.kyori.adventure.text.Component;
@@ -23,12 +24,13 @@ public final class PurchaseConfirmationDialog {
 
     public static void show(Player player, StoreItem item, Runnable confirmAction) {
         DialogInstancesProvider dialogs = DialogInstancesProvider.instance();
+                long price = AshStore.inst().getSaleManager().getPrice(item.getPrice());
         ClickCallback.Options callbackOptions = ClickCallback.Options.builder()
                 .uses(1)
                 .build();
 
         ActionButton confirm = ActionButton.builder(Component.text("Confirm Purchase"))
-                .tooltip(Component.text("Spend " + item.getPrice() + " AshCoins"))
+                .tooltip(Component.text("Spend " + price + " AshCoins"))
                 .action(DialogAction.customClick((response, audience) -> confirmAction.run(), callbackOptions))
                 .build();
         ActionButton cancel = ActionButton.builder(Component.text("Cancel")).build();
@@ -39,7 +41,7 @@ public final class PurchaseConfirmationDialog {
                 .body(List.of(
                     DialogBody.plainMessage(NeoCore.miniMessage().deserialize(item.getName())),
                     DialogBody.plainMessage(NeoCore.miniMessage().deserialize(
-                        "<gray>Purchase for <yellow>" + item.getPrice() + "</yellow> AshCoins?"))))
+                                                "<gray>Purchase for <yellow>" + price + "</yellow> AshCoins?"))))
                 .build();
 
         Dialog dialog = Dialog.create(factory -> factory.empty()

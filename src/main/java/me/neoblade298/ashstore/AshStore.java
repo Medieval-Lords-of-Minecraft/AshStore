@@ -7,12 +7,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import me.neoblade298.ashstore.commands.CmdAshStore;
 import me.neoblade298.ashstore.player.PlayerManager;
+import me.neoblade298.ashstore.store.SaleManager;
 import me.neoblade298.ashstore.store.StoreManager;
 import me.neoblade298.neocore.bukkit.NeoCore;
 
 public class AshStore extends JavaPlugin {
 
     private static AshStore inst;
+    private SaleManager saleManager;
 
     public static AshStore inst() {
         return inst;
@@ -21,6 +23,10 @@ public class AshStore extends JavaPlugin {
     @Override
     public void onEnable() {
         inst = this;
+
+        saveDefaultConfig();
+        saleManager = new SaleManager(this);
+        saleManager.reload();
 
         // Register IO component for AshCoins load/save, then create the table once
         NeoCore.registerIOComponent(this, new PlayerManager(), PlayerManager.KEY);
@@ -38,7 +44,14 @@ public class AshStore extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (saleManager != null) {
+            saleManager.shutdown();
+        }
         getLogger().info("AshStore disabled!");
+    }
+
+    public SaleManager getSaleManager() {
+        return saleManager;
     }
 
     private void saveDefaultCategory() {
