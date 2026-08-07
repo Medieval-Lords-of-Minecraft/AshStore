@@ -9,15 +9,17 @@ public class StoreCategory {
 
     private final String id;
     private final String name;
+    private final int size;
     private final int slot;
     private final int priority;
     private final String sortKey;
     private final StoreIcon icon;
     private final List<StoreItem> items = new ArrayList<>();
 
-    public StoreCategory(String id, String name, int slot, int priority, StoreIcon icon) {
+    public StoreCategory(String id, String name, int size, int slot, int priority, StoreIcon icon) {
         this.id = id;
         this.name = name;
+        this.size = size;
         this.slot = slot;
         this.priority = priority;
         this.icon = icon;
@@ -40,6 +42,10 @@ public class StoreCategory {
 
     public String getName() {
         return name;
+    }
+
+    public int getSize() {
+        return size;
     }
 
     public int getSlot() {

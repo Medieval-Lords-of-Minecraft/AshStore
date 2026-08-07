@@ -19,9 +19,17 @@ public class StoreLoader implements FileLoader {
         String id = f.getName().replaceAll("\\.ya?ml$", "");
         try {
             String name = cfg.getString("name", id);
+            int size = cfg.getInt("size", 54);
             int slot = cfg.getInt("slot", -1);
             int priority = cfg.getInt("priority", 10);
             StoreIcon icon = StoreIcon.from(cfg.contains("icon") ? cfg.getSection("icon") : null);
+
+            if (size < 18 || size > 54 || size % 9 != 0) {
+                AshStore.inst().getLogger().warning(
+                    "Store category '" + id + "' has invalid size " + size
+                        + "; expected 18, 27, 36, 45, or 54. Using 54.");
+                size = 54;
+            }
 
             if (cfg.contains("slot") && (slot < 0 || slot >= 54)) {
                 AshStore.inst().getLogger().warning(
@@ -29,7 +37,7 @@ public class StoreLoader implements FileLoader {
                 slot = -1;
             }
 
-            StoreCategory category = new StoreCategory(id, name, slot, priority, icon);
+            StoreCategory category = new StoreCategory(id, name, size, slot, priority, icon);
 
             if (cfg.contains("items")) {
                 Section items = cfg.getSection("items");
@@ -38,7 +46,7 @@ public class StoreLoader implements FileLoader {
                     if (is == null) {
                         continue;
                     }
-                    StoreItem item = loadItem(key, is);
+                    StoreItem item = loadItem(key, is, size - 9);
                     if (item != null) {
                         category.addItem(item);
                     }
@@ -53,7 +61,7 @@ public class StoreLoader implements FileLoader {
         }
     }
 
-    private StoreItem loadItem(String key, Section is) {
+    private StoreItem loadItem(String key, Section is, int contentSize) {
         String name = is.getString("name", key);
         long price = is.getInt("price", 0);
         int slot = is.getInt("slot", -1);
@@ -75,9 +83,10 @@ public class StoreLoader implements FileLoader {
                 "Store item '" + key + "' has no commands; it will do nothing when purchased.");
         }
 
-        if (is.contains("slot") && (slot < 0 || slot >= 45)) {
+        if (is.contains("slot") && (slot < 0 || slot >= contentSize)) {
             AshStore.inst().getLogger().warning(
-                "Store item '" + key + "' has invalid slot " + slot + "; expected 0-44.");
+                "Store item '" + key + "' has invalid slot " + slot + "; expected 0-"
+                    + (contentSize - 1) + ".");
             slot = -1;
         }
 

@@ -2,6 +2,8 @@
 # is the category id. Set slot to place the category in the store inventory (0-53).
 # Categories without a slot fill empty spaces automatically. If categories share a
 # slot, the one with the lower priority is shown (default priority: 10).
+# Set size to 18, 27, 36, 45, or 54 inventory slots (default 54). The final row
+# is reserved for navigation, so the remaining slots contain category items.
 #
 # icon:  base64: "<texture>"  -> rendered as a skull (SkullUtil)
 #        material: STONE      -> rendered as that material
@@ -23,6 +25,7 @@
 # native Paper dialog, whether or not the item has a details menu.
 
 name: "<gold>Example Category"
+size: 54
 slot: 10
 priority: 10
 icon:

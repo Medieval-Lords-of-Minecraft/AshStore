@@ -27,11 +27,6 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 /** Menu listing the items of a single category, with paging and purchase handling. */
 public class ItemMenu extends CoreInventory {
 
-    private static final int PAGE_SIZE = 45;
-    private static final int SLOT_BACK = 45;
-    private static final int SLOT_PREV = 48;
-    private static final int SLOT_NEXT = 50;
-
     private final StoreCategory category;
     private final int page;
     private final HashMap<Integer, StoreItem> slots = new HashMap<>();
@@ -41,7 +36,7 @@ public class ItemMenu extends CoreInventory {
     }
 
     public ItemMenu(Player player, StoreCategory category, int page) {
-        super(player, Bukkit.createInventory(null, 54,
+        super(player, Bukkit.createInventory(null, category.getSize(),
                 NeoCore.miniMessage().deserialize(category.getName())));
         this.category = category;
         this.page = page;
@@ -59,7 +54,7 @@ public class ItemMenu extends CoreInventory {
             buildPaged(items);
         }
 
-        inv.setItem(SLOT_BACK, CoreInventory.createButton(Material.BARRIER,
+        inv.setItem(getBackSlot(), CoreInventory.createButton(Material.BARRIER,
                 Component.text("Back", NamedTextColor.RED)));
     }
 
@@ -79,10 +74,10 @@ public class ItemMenu extends CoreInventory {
             if (item.hasSlot()) {
                 continue;
             }
-            while (nextSlot < PAGE_SIZE && slots.containsKey(nextSlot)) {
+            while (nextSlot < getPageSize() && slots.containsKey(nextSlot)) {
                 nextSlot++;
             }
-            if (nextSlot >= PAGE_SIZE) {
+            if (nextSlot >= getPageSize()) {
                 break;
             }
             slots.put(nextSlot++, item);
@@ -94,8 +89,8 @@ public class ItemMenu extends CoreInventory {
     }
 
     private void buildPaged(List<StoreItem> items) {
-        int start = page * PAGE_SIZE;
-        for (int i = 0; i < PAGE_SIZE; i++) {
+        int start = page * getPageSize();
+        for (int i = 0; i < getPageSize(); i++) {
             int idx = start + i;
             if (idx >= items.size()) {
                 break;
@@ -106,13 +101,29 @@ public class ItemMenu extends CoreInventory {
         }
 
         if (page > 0) {
-            inv.setItem(SLOT_PREV, CoreInventory.createButton(Material.ARROW,
+            inv.setItem(getPreviousSlot(), CoreInventory.createButton(Material.ARROW,
                     Component.text("Previous Page", NamedTextColor.YELLOW)));
         }
-        if ((page + 1) * PAGE_SIZE < items.size()) {
-            inv.setItem(SLOT_NEXT, CoreInventory.createButton(Material.ARROW,
+        if ((page + 1) * getPageSize() < items.size()) {
+            inv.setItem(getNextSlot(), CoreInventory.createButton(Material.ARROW,
                     Component.text("Next Page", NamedTextColor.YELLOW)));
         }
+    }
+
+    private int getPageSize() {
+        return category.getSize() - 9;
+    }
+
+    private int getBackSlot() {
+        return category.getSize() - 9;
+    }
+
+    private int getPreviousSlot() {
+        return category.getSize() - 6;
+    }
+
+    private int getNextSlot() {
+        return category.getSize() - 4;
     }
 
     private List<StoreItem> getVisibleItems() {
@@ -154,16 +165,17 @@ public class ItemMenu extends CoreInventory {
         e.setCancelled(true);
         int slot = e.getRawSlot();
 
-        if (slot == SLOT_BACK) {
+        if (slot == getBackSlot()) {
             new CategoryMenu(p).openInventory();
             return;
         }
         boolean slotted = category.getItems().stream().anyMatch(StoreItem::hasSlot);
-        if (!slotted && slot == SLOT_PREV && page > 0) {
+        if (!slotted && slot == getPreviousSlot() && page > 0) {
             new ItemMenu(p, category, page - 1).openInventory();
             return;
         }
-        if (!slotted && slot == SLOT_NEXT && (page + 1) * PAGE_SIZE < getVisibleItems().size()) {
+        if (!slotted && slot == getNextSlot()
+            && (page + 1) * getPageSize() < getVisibleItems().size()) {
             new ItemMenu(p, category, page + 1).openInventory();
             return;
         }
