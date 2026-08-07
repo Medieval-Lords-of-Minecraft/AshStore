@@ -3,6 +3,7 @@ package me.neoblade298.ashstore.store;
 import java.util.List;
 
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -61,6 +62,7 @@ public class StoreIcon {
 
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
+            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
             if (name != null) {
                 meta.displayName(name.decoration(TextDecoration.ITALIC, false));
             }
