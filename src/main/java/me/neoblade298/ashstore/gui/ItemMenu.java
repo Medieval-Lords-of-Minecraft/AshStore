@@ -216,6 +216,9 @@ public class ItemMenu extends CoreInventory {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parsed);
         }
 
+        AshStore.inst().getLogger().info(p.getName() + " (" + p.getUniqueId()
+            + ") purchased " + item.getName() + " for " + price + " AshCoins.");
+
         String message = AshStore.inst().getConfig().getString("messages.purchase",
             "<green><player>, you successfully purchased <item>!");
         p.sendMessage(NeoCore.miniMessage().deserialize(message,
