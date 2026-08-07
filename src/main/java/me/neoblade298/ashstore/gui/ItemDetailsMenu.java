@@ -71,7 +71,7 @@ public class ItemDetailsMenu extends CoreInventory {
 
         inv.setItem(details.getBackSlot(), CoreInventory.createButton(Material.BARRIER,
                 Component.text("Back", NamedTextColor.RED)));
-        if (item.isPurchasable()) {
+        if (item.isPurchasable() && !item.isOwnedBy(p)) {
             inv.setItem(details.getPurchaseSlot(), renderPurchaseButton());
         }
     }
@@ -96,7 +96,8 @@ public class ItemDetailsMenu extends CoreInventory {
         int slot = e.getRawSlot();
         if (slot == details.getBackSlot()) {
             parent.openInventory();
-        } else if (item.isPurchasable() && slot == details.getPurchaseSlot()) {
+        } else if (item.isPurchasable() && !item.isOwnedBy(p)
+                && slot == details.getPurchaseSlot()) {
             PurchaseConfirmationDialog.show(p, item, () -> parent.purchase(item));
         }
     }

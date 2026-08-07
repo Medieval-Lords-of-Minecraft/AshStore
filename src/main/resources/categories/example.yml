@@ -14,9 +14,8 @@
 # purchasable: false makes an informational icon with no price or click action (default true)
 # view-permission: only players with this permission will see the item
 # negate-permission: players with this permission will not see the item
+# owned-permission: players with this permission see "Owned" and cannot purchase the item
 #
-# To replace a shop item after purchase, give it negate-permission and add a
-# non-purchasable item in the same slot with the matching view-permission.
 # Item placeholders in commands: %player%, %uuid%
 #
 # Optional details menus use keyed groups under details.groups. Group slots are
@@ -38,6 +37,7 @@ items:
     slot: 10
     priority: 1
     permission: ashstore.buy.example
+    owned-permission: ashstore.owned.example
     lore:
       - "<gray>An example purchasable rank."
       - "<dark_gray>Click to view all perks."

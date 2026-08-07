@@ -2,6 +2,8 @@ package me.neoblade298.ashstore.store;
 
 import java.util.List;
 
+import org.bukkit.entity.Player;
+
 /** A store menu item with optional purchase behavior and visibility requirements. */
 public class StoreItem {
 
@@ -14,6 +16,7 @@ public class StoreItem {
     private final String viewPermission; // nullable
     private final String permission; // nullable
     private final String negatePermission; // nullable
+    private final String ownedPermission; // nullable
     private final List<String> commands;
     private final List<String> lore;
     private final StoreIcon icon;
@@ -21,7 +24,7 @@ public class StoreItem {
 
     public StoreItem(String id, String name, long price, int slot, int priority, boolean purchasable,
                      String viewPermission, String permission, String negatePermission,
-                     List<String> commands, List<String> lore, StoreIcon icon,
+                     String ownedPermission, List<String> commands, List<String> lore, StoreIcon icon,
                      StoreItemDetails details) {
         this.id = id;
         this.name = name;
@@ -32,6 +35,7 @@ public class StoreItem {
         this.viewPermission = viewPermission;
         this.permission = permission;
         this.negatePermission = negatePermission;
+        this.ownedPermission = ownedPermission;
         this.commands = commands;
         this.lore = lore;
         this.icon = icon;
@@ -89,6 +93,18 @@ public class StoreItem {
 
     public boolean hasNegatePermission() {
         return negatePermission != null && !negatePermission.isEmpty();
+    }
+
+    public String getOwnedPermission() {
+        return ownedPermission;
+    }
+
+    public boolean hasOwnedPermission() {
+        return ownedPermission != null && !ownedPermission.isEmpty();
+    }
+
+    public boolean isOwnedBy(Player player) {
+        return hasOwnedPermission() && player.hasPermission(ownedPermission);
     }
 
     public List<String> getCommands() {

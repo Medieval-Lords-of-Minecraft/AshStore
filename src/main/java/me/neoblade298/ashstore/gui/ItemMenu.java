@@ -142,7 +142,13 @@ public class ItemMenu extends CoreInventory {
         for (String line : item.getLore()) {
             lore.add(NeoCore.miniMessage().deserialize(line));
         }
-        if (item.isPurchasable()) {
+        if (item.isOwnedBy(p)) {
+            lore.add(Component.empty());
+            lore.add(NeoCore.miniMessage().deserialize("<green>Owned"));
+            if (item.hasDetails()) {
+                lore.add(NeoCore.miniMessage().deserialize("<green>Click to view details"));
+            }
+        } else if (item.isPurchasable()) {
             long price = AshStore.inst().getSaleManager().getPrice(item.getPrice());
             lore.add(Component.empty());
             lore.add(NeoCore.miniMessage().deserialize("<gold>Price: <yellow>" + price + "</yellow> AshCoins"));
@@ -181,7 +187,7 @@ public class ItemMenu extends CoreInventory {
         }
 
         StoreItem item = slots.get(slot);
-        if (item != null && item.isPurchasable()) {
+        if (item != null && item.isPurchasable() && !item.isOwnedBy(p)) {
             if (item.hasDetails()) {
                 new ItemDetailsMenu(p, item, this).openInventory();
             } else {
@@ -193,6 +199,13 @@ public class ItemMenu extends CoreInventory {
     }
 
     void purchase(StoreItem item) {
+        if (item.isOwnedBy(p)) {
+            Util.msgRaw(p, "<green>You already own this item.");
+            build();
+            openInventory();
+            return;
+        }
+
         if (item.hasNegatePermission() && p.hasPermission(item.getNegatePermission())) {
             build();
             openInventory();

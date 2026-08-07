@@ -71,6 +71,8 @@ public class StoreLoader implements FileLoader {
         String permission = is.contains("permission") ? is.getString("permission") : null;
         String negatePermission = is.contains("negate-permission")
             ? is.getString("negate-permission") : null;
+        String ownedPermission = is.contains("owned-permission")
+            ? is.getString("owned-permission") : null;
 
         List<String> commands = is.contains("commands") ? is.getStringList("commands") : new ArrayList<>();
         List<String> lore = is.contains("lore") ? is.getStringList("lore") : new ArrayList<>();
@@ -91,7 +93,7 @@ public class StoreLoader implements FileLoader {
         }
 
         return new StoreItem(key, name, price, slot, priority, purchasable, viewPermission,
-            permission, negatePermission, commands, lore, icon, details);
+            permission, negatePermission, ownedPermission, commands, lore, icon, details);
     }
 
     private StoreItemDetails loadDetails(String itemKey, String itemName, Section ds) {
