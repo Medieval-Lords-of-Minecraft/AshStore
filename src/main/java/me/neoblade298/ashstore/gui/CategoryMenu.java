@@ -15,37 +15,63 @@ import me.neoblade298.ashstore.store.StoreManager;
 import me.neoblade298.neocore.bukkit.NeoCore;
 import me.neoblade298.neocore.bukkit.inventories.CoreInventory;
 
-/** Top-level menu listing all store categories, sorted alphabetically. */
+/** Top-level menu listing all store categories in configured slots. */
 public class CategoryMenu extends CoreInventory {
 
     private final HashMap<Integer, StoreCategory> slots = new HashMap<>();
 
     public CategoryMenu(Player player) {
-        super(player, Bukkit.createInventory(null, size(StoreManager.getCategories().size()),
+        super(player, Bukkit.createInventory(null, size(StoreManager.getCategories()),
                 NeoCore.miniMessage().deserialize("<dark_gray>Store")));
         build();
     }
 
-    private static int size(int count) {
-        int rows = Math.max(1, (int) Math.ceil(count / 9.0));
+    private static int size(List<StoreCategory> categories) {
+        int highestSlot = categories.stream()
+            .filter(StoreCategory::hasSlot)
+            .mapToInt(StoreCategory::getSlot)
+            .max()
+            .orElse(-1);
+        int requiredSlots = Math.max(categories.size(), highestSlot + 1);
+        int rows = Math.max(1, (int) Math.ceil(requiredSlots / 9.0));
         rows = Math.min(rows, 6);
         return rows * 9;
     }
 
     private void build() {
         List<StoreCategory> categories = StoreManager.getCategories();
-        int slot = 0;
+
         for (StoreCategory category : categories) {
-            if (slot >= inv.getSize()) {
+            if (!category.hasSlot()) {
+                continue;
+            }
+            StoreCategory current = slots.get(category.getSlot());
+            if (current == null || category.getPriority() < current.getPriority()) {
+                slots.put(category.getSlot(), category);
+            }
+        }
+
+        int nextSlot = 0;
+        for (StoreCategory category : categories) {
+            if (category.hasSlot()) {
+                continue;
+            }
+            while (nextSlot < inv.getSize() && slots.containsKey(nextSlot)) {
+                nextSlot++;
+            }
+            if (nextSlot >= inv.getSize()) {
                 break;
             }
+            slots.put(nextSlot++, category);
+        }
+
+        for (var entry : slots.entrySet()) {
+            StoreCategory category = entry.getValue();
             ItemStack icon = category.getIcon().build(
                     NeoCore.miniMessage().deserialize(category.getName()),
                     List.of(NeoCore.miniMessage().deserialize(
                             "<gray>" + category.getItems().size() + " item(s)")));
-            inv.setItem(slot, icon);
-            slots.put(slot, category);
-            slot++;
+            inv.setItem(entry.getKey(), icon);
         }
     }
 

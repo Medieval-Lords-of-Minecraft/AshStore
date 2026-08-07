@@ -19,8 +19,17 @@ public class StoreLoader implements FileLoader {
         String id = f.getName().replaceAll("\\.ya?ml$", "");
         try {
             String name = cfg.getString("name", id);
+            int slot = cfg.getInt("slot", -1);
+            int priority = cfg.getInt("priority", 10);
             StoreIcon icon = StoreIcon.from(cfg.contains("icon") ? cfg.getSection("icon") : null);
-            StoreCategory category = new StoreCategory(id, name, icon);
+
+            if (cfg.contains("slot") && (slot < 0 || slot >= 54)) {
+                AshStore.inst().getLogger().warning(
+                    "Store category '" + id + "' has invalid slot " + slot + "; expected 0-53.");
+                slot = -1;
+            }
+
+            StoreCategory category = new StoreCategory(id, name, slot, priority, icon);
 
             if (cfg.contains("items")) {
                 Section items = cfg.getSection("items");

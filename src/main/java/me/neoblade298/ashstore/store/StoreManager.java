@@ -20,7 +20,8 @@ public class StoreManager {
             folder.mkdirs();
         }
         NeoCore.loadFiles(folder, new StoreLoader());
-        categories.sort(Comparator.comparing(StoreCategory::getSortKey));
+        categories.sort(Comparator.comparingInt(StoreCategory::getPriority)
+            .thenComparing(StoreCategory::getSortKey));
     }
 
     /** Called by {@link StoreLoader} for each loaded file. */

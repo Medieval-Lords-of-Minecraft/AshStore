@@ -1,5 +1,7 @@
 # Each file in this folder is one store category. The file name (without extension)
-# is the category id. Categories are shown alphabetically by their display name.
+# is the category id. Set slot to place the category in the store inventory (0-53).
+# Categories without a slot fill empty spaces automatically. If categories share a
+# slot, the one with the lower priority is shown (default priority: 10).
 #
 # icon:  base64: "<texture>"  -> rendered as a skull (SkullUtil)
 #        material: STONE      -> rendered as that material
@@ -21,6 +23,8 @@
 # native Paper dialog, whether or not the item has a details menu.
 
 name: "<gold>Example Category"
+slot: 10
+priority: 10
 icon:
   material: CHEST
 
