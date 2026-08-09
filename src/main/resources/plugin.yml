@@ -12,6 +12,18 @@ permissions:
   ashstore.use:
     description: Allows opening the store
     default: true
+  ashstore.balance:
+    description: Allows viewing your AshCoins balance
+    default: true
   ashstore.admin:
-    description: Allows managing AshCoins and reloading the store
+    description: Grants all AshStore administrative permissions
     default: op
+    children:
+      ashstore.admin.coins: true
+      ashstore.admin.reload: true
+  ashstore.admin.coins:
+    description: Allows giving, taking, and setting player AshCoins
+    default: false
+  ashstore.admin.reload:
+    description: Allows reloading AshStore configuration and categories
+    default: false

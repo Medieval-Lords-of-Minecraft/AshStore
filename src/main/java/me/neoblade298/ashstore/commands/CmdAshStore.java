@@ -21,9 +21,15 @@ import me.neoblade298.neocore.bukkit.util.Util;
 
 public class CmdAshStore implements CommandExecutor, TabCompleter {
 
-    private static final List<String> SUBCOMMANDS = List.of("balance", "give", "take", "set", "reload");
+    private static final String BALANCE_PERMISSION = "ashstore.balance";
+    private static final String COINS_PERMISSION = "ashstore.admin.coins";
+    private static final String RELOAD_PERMISSION = "ashstore.admin.reload";
 
     @Override
+                if (!sender.hasPermission(BALANCE_PERMISSION)) {
+                    Util.msgRaw(sender, "<red>You don't have permission to do that.");
+                    return true;
+                }
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
             if (!(sender instanceof Player p)) {
@@ -45,7 +51,7 @@ public class CmdAshStore implements CommandExecutor, TabCompleter {
                 Util.msgRaw(p, "<gold>Balance: <yellow>" + coins + "</yellow> AshCoins");
             }
             case "reload" -> {
-                if (!sender.hasPermission("ashstore.admin")) {
+                if (!sender.hasPermission(RELOAD_PERMISSION)) {
                     Util.msgRaw(sender, "<red>You don't have permission to do that.");
                     return true;
                 }
@@ -61,7 +67,7 @@ public class CmdAshStore implements CommandExecutor, TabCompleter {
     }
 
     private void handleAdjust(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("ashstore.admin")) {
+        if (!sender.hasPermission(COINS_PERMISSION)) {
             Util.msgRaw(sender, "<red>You don't have permission to do that.");
             return;
         }
@@ -126,14 +132,15 @@ public class CmdAshStore implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         List<String> out = new ArrayList<>();
         if (args.length == 1) {
-            for (String sub : SUBCOMMANDS) {
-                if (sub.startsWith(args[0].toLowerCase())) {
-                    out.add(sub);
-                }
-            }
+            addCompletion(out, args[0], "balance", sender.hasPermission(BALANCE_PERMISSION));
+            addCompletion(out, args[0], "give", sender.hasPermission(COINS_PERMISSION));
+            addCompletion(out, args[0], "take", sender.hasPermission(COINS_PERMISSION));
+            addCompletion(out, args[0], "set", sender.hasPermission(COINS_PERMISSION));
+            addCompletion(out, args[0], "reload", sender.hasPermission(RELOAD_PERMISSION));
         } else if (args.length == 2) {
             String sub = args[0].toLowerCase();
-            if (sub.equals("give") || sub.equals("take") || sub.equals("set")) {
+            if (sender.hasPermission(COINS_PERMISSION)
+                    && (sub.equals("give") || sub.equals("take") || sub.equals("set"))) {
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     if (p.getName().toLowerCase().startsWith(args[1].toLowerCase())) {
                         out.add(p.getName());
@@ -142,5 +149,11 @@ public class CmdAshStore implements CommandExecutor, TabCompleter {
             }
         }
         return out;
+    }
+
+    private void addCompletion(List<String> completions, String input, String subcommand, boolean permitted) {
+        if (permitted && subcommand.startsWith(input.toLowerCase())) {
+            completions.add(subcommand);
+        }
     }
 }
