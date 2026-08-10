@@ -26,10 +26,6 @@ public class CmdAshStore implements CommandExecutor, TabCompleter {
     private static final String RELOAD_PERMISSION = "ashstore.admin.reload";
 
     @Override
-                if (!sender.hasPermission(BALANCE_PERMISSION)) {
-                    Util.msgRaw(sender, "<red>You don't have permission to do that.");
-                    return true;
-                }
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
             if (!(sender instanceof Player p)) {
@@ -42,6 +38,10 @@ public class CmdAshStore implements CommandExecutor, TabCompleter {
 
         switch (args[0].toLowerCase()) {
             case "balance", "bal" -> {
+                if (!sender.hasPermission(BALANCE_PERMISSION)) {
+                    Util.msgRaw(sender, "<red>You don't have permission to do that.");
+                    return true;
+                }
                 if (!(sender instanceof Player p)) {
                     Util.msgRaw(sender, "<red>Only players have an AshCoins balance.");
                     return true;
