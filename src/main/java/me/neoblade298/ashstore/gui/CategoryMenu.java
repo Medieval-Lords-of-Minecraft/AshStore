@@ -67,10 +67,13 @@ public class CategoryMenu extends CoreInventory {
 
         for (var entry : slots.entrySet()) {
             StoreCategory category = entry.getValue();
+            long visibleItems = category.getItems().stream()
+                .filter(item -> item.isVisibleTo(p))
+                .count();
             ItemStack icon = category.getIcon().build(
                     NeoCore.miniMessage().deserialize(category.getName()),
                     List.of(NeoCore.miniMessage().deserialize(
-                            "<gray>" + category.getItems().size() + " item(s)")));
+                    "<gray>" + visibleItems + " item(s)")));
             inv.setItem(entry.getKey(), icon);
         }
     }

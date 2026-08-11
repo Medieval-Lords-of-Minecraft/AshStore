@@ -95,6 +95,11 @@ public class StoreItem {
         return negatePermission != null && !negatePermission.isEmpty();
     }
 
+    public boolean isVisibleTo(Player player) {
+        return (!hasViewPermission() || player.hasPermission(viewPermission))
+                && (!hasNegatePermission() || !player.hasPermission(negatePermission));
+    }
+
     public String getOwnedPermission() {
         return ownedPermission;
     }

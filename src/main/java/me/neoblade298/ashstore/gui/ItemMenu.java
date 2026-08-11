@@ -129,8 +129,7 @@ public class ItemMenu extends CoreInventory {
     private List<StoreItem> getVisibleItems() {
         List<StoreItem> items = new ArrayList<>();
         for (StoreItem item : category.getItems()) {
-            if ((!item.hasViewPermission() || p.hasPermission(item.getViewPermission()))
-                    && (!item.hasNegatePermission() || !p.hasPermission(item.getNegatePermission()))) {
+            if (item.isVisibleTo(p)) {
                 items.add(item);
             }
         }
