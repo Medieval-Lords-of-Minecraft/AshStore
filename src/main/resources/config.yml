@@ -1,3 +1,6 @@
+# URL shown when the Info icon in the store menu is clicked.
+store-url: "mlmc.tebex.io"
+
 # MiniMessage shown to the purchasing player after a successful purchase.
 # Placeholders: <player>, <item>
 messages:
