@@ -56,6 +56,7 @@ public class ItemMenu extends CoreInventory {
 
         inv.setItem(getBackSlot(), CoreInventory.createButton(Material.BARRIER,
                 Component.text("Back", NamedTextColor.RED)));
+        inv.setItem(getBalanceSlot(), BalanceDisplay.createIcon(p));
     }
 
     private void buildSlotted(List<StoreItem> items) {
@@ -124,6 +125,10 @@ public class ItemMenu extends CoreInventory {
 
     private int getNextSlot() {
         return category.getSize() - 4;
+    }
+
+    private int getBalanceSlot() {
+        return category.getSize() - 1;
     }
 
     private List<StoreItem> getVisibleItems() {

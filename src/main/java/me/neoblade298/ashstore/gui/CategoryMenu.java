@@ -76,9 +76,14 @@ public class CategoryMenu extends CoreInventory {
         }
 
         ItemStack infoIcon = new StoreIcon(null, Material.BOOK).build(
-                NeoCore.miniMessage().deserialize("<gold>Info"),
-                List.of(NeoCore.miniMessage().deserialize(
-                        "<gray>Click here <gray>to buy AshCoins. All store items are purchasable with AshCoins.")));
+            NeoCore.miniMessage().deserialize("<gold>Info"),
+            List.of(
+                BalanceDisplay.balanceLine(p),
+                Component.empty(),
+                NeoCore.miniMessage().deserialize(
+                    "<gray>Click here to buy AshCoins."),
+                NeoCore.miniMessage().deserialize(
+                    "<gray>All store items are purchasable with AshCoins.")));
         inv.setItem(INFO_SLOT, infoIcon);
     }
 

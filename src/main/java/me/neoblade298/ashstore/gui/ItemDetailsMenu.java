@@ -74,6 +74,16 @@ public class ItemDetailsMenu extends CoreInventory {
         if (item.isPurchasable() && !item.isOwnedBy(p)) {
             inv.setItem(details.getPurchaseSlot(), renderPurchaseButton());
         }
+        inv.setItem(getBalanceSlot(), BalanceDisplay.createIcon(p));
+    }
+
+    private int getBalanceSlot() {
+        for (int slot = 53; slot >= CONTENT_SIZE; slot--) {
+            if (slot != details.getBackSlot() && slot != details.getPurchaseSlot()) {
+                return slot;
+            }
+        }
+        throw new IllegalStateException("No available balance slot");
     }
 
     private org.bukkit.inventory.ItemStack renderPurchaseButton() {
