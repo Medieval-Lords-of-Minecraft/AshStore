@@ -118,6 +118,14 @@ public abstract class StoreMenu extends CoreInventory {
         p.sendMessage(NeoCore.miniMessage().deserialize(message,
                 Placeholder.unparsed("player", p.getName()),
                 Placeholder.parsed("item", item.getName())));
+
+        String broadcast = AshStore.inst().getConfig().getString("messages.broadcast",
+            "<yellow><player></yellow> just purchased <item> from <yellow>/store</yellow>!");
+        if (broadcast != null && !broadcast.isBlank()) {
+            Bukkit.broadcast(NeoCore.miniMessage().deserialize(broadcast,
+                Placeholder.unparsed("player", p.getName()),
+                Placeholder.parsed("item", item.getName())));
+        }
         rebuild();
         openInventory();
     }
