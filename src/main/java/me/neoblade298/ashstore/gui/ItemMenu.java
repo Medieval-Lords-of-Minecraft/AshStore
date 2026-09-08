@@ -10,22 +10,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.inventory.ItemStack;
 
-import me.neoblade298.ashstore.AshStore;
-import me.neoblade298.ashstore.player.PlayerData;
-import me.neoblade298.ashstore.player.PlayerManager;
 import me.neoblade298.ashstore.store.StoreCategory;
 import me.neoblade298.ashstore.store.StoreItem;
 import me.neoblade298.neocore.bukkit.NeoCore;
 import me.neoblade298.neocore.bukkit.inventories.CoreInventory;
-import me.neoblade298.neocore.bukkit.util.Util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 /** Menu listing the items of a single category, with paging and purchase handling. */
-public class ItemMenu extends CoreInventory {
+public class ItemMenu extends StoreMenu {
 
     private final StoreCategory category;
     private final int page;
@@ -40,10 +34,11 @@ public class ItemMenu extends CoreInventory {
                 NeoCore.miniMessage().deserialize(category.getName())));
         this.category = category;
         this.page = page;
-        build();
+        rebuild();
     }
 
-    private void build() {
+    @Override
+    protected void rebuild() {
         inv.clear();
         slots.clear();
 
@@ -141,42 +136,13 @@ public class ItemMenu extends CoreInventory {
         return items;
     }
 
-    private ItemStack renderItem(StoreItem item) {
-        List<Component> lore = new ArrayList<>();
-        for (String line : item.getLore()) {
-            lore.add(NeoCore.miniMessage().deserialize(line));
-        }
-        if (item.isOwnedBy(p)) {
-            lore.add(Component.empty());
-            lore.add(NeoCore.miniMessage().deserialize("<green>Owned"));
-            if (item.hasDetails()) {
-                lore.add(NeoCore.miniMessage().deserialize("<green>Click to view details"));
-            }
-        } else if (item.isPurchasable()) {
-            long price = AshStore.inst().getSaleManager().getPrice(item.getPrice());
-            lore.add(Component.empty());
-            lore.add(NeoCore.miniMessage().deserialize("<gold>Price: <yellow>" + price + "</yellow> AshCoins"));
-            if (item.hasPermission() && !p.hasPermission(item.getPermission())) {
-                lore.add(NeoCore.miniMessage().deserialize("<red>You don't have access to this item"));
-            } else if (item.hasDetails()) {
-                lore.add(NeoCore.miniMessage().deserialize("<green>Click to view details"));
-            } else {
-                lore.add(NeoCore.miniMessage().deserialize("<green>Click to purchase"));
-            }
-        } else if (item.hasDetails()) {
-            lore.add(Component.empty());
-            lore.add(NeoCore.miniMessage().deserialize("<green>Click to view details"));
-        }
-        return item.getIcon().build(NeoCore.miniMessage().deserialize(item.getName()), lore);
-    }
-
     @Override
     public void handleInventoryClick(InventoryClickEvent e) {
         e.setCancelled(true);
         int slot = e.getRawSlot();
 
         if (slot == getBackSlot()) {
-            new CategoryMenu(p).openInventory();
+            new RootMenu(p).openInventory();
             return;
         }
         boolean slotted = category.getItems().stream().anyMatch(StoreItem::hasSlot);
@@ -191,70 +157,9 @@ public class ItemMenu extends CoreInventory {
         }
 
         StoreItem item = slots.get(slot);
-        if (item != null && item.isPurchasable() && !item.isOwnedBy(p)) {
-            if (item.hasDetails()) {
-                new ItemDetailsMenu(p, item, this).openInventory();
-            } else {
-                PurchaseConfirmationDialog.show(p, item, () -> purchase(item));
-            }
-        } else if (item != null && item.hasDetails()) {
-            new ItemDetailsMenu(p, item, this).openInventory();
+        if (item != null) {
+            selectItem(item);
         }
-    }
-
-    void purchase(StoreItem item) {
-        if (item.isOwnedBy(p)) {
-            Util.msgRaw(p, "<green>You already own this item.");
-            build();
-            openInventory();
-            return;
-        }
-
-        if (item.hasNegatePermission() && p.hasPermission(item.getNegatePermission())) {
-            build();
-            openInventory();
-            return;
-        }
-
-        if (item.hasPermission() && !p.hasPermission(item.getPermission())) {
-            Util.msgRaw(p, "<red>You don't have access to purchase this item.");
-            openInventory();
-            return;
-        }
-
-        PlayerData data = PlayerManager.get(p);
-        if (data == null) {
-            Util.msgRaw(p, "<red>Your data hasn't loaded yet. Try again shortly.");
-            openInventory();
-            return;
-        }
-
-        long price = AshStore.inst().getSaleManager().getPrice(item.getPrice());
-        if (!data.canAfford(price)) {
-            Util.msgRaw(p, "<red>You need <yellow>" + price
-                    + "</yellow> AshCoins but only have <yellow>" + data.getCoins() + "</yellow>.");
-            openInventory();
-            return;
-        }
-
-        data.deduct(price);
-        for (String cmd : item.getCommands()) {
-            String parsed = cmd
-                    .replace("%player%", p.getName())
-                    .replace("%uuid%", p.getUniqueId().toString());
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parsed);
-        }
-
-        AshStore.inst().getLogger().info(p.getName() + " (" + p.getUniqueId()
-            + ") purchased " + item.getName() + " for " + price + " AshCoins.");
-
-        String message = AshStore.inst().getConfig().getString("messages.purchase",
-            "<green><player>, you successfully purchased <item>!");
-        p.sendMessage(NeoCore.miniMessage().deserialize(message,
-            Placeholder.unparsed("player", p.getName()),
-            Placeholder.parsed("item", item.getName())));
-        build();
-        openInventory();
     }
 
     @Override

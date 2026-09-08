@@ -13,7 +13,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import me.neoblade298.ashstore.AshStore;
-import me.neoblade298.ashstore.gui.CategoryMenu;
+import me.neoblade298.ashstore.gui.RootMenu;
 import me.neoblade298.ashstore.player.PlayerData;
 import me.neoblade298.ashstore.player.PlayerManager;
 import me.neoblade298.ashstore.store.StoreManager;
@@ -32,7 +32,7 @@ public class CmdAshStore implements CommandExecutor, TabCompleter {
                 Util.msgRaw(sender, "<red>Only players can open the store.");
                 return true;
             }
-            new CategoryMenu(p).openInventory();
+            new RootMenu(p).openInventory();
             return true;
         }
 

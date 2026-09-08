@@ -1,6 +1,33 @@
 # URL shown when the Info icon in the store menu is clicked.
 store-url: "mlmc.tebex.io"
 
+# The root store menu can contain category links and featured item references.
+# Valid sizes are 9, 18, 27, 36, 45, and 54. Entry and control slots are
+# zero-based. Entries without a slot fill the next available non-control slot.
+# Lower priorities win when entries share a slot.
+#
+# Item references use <category-id>.<item-id>. They reuse the item's complete
+# purchase, visibility, ownership, and details configuration from its category.
+# If entries is omitted, every loaded category is inserted using the slot and
+# priority from its category file.
+root-menu:
+  title: "<dark_gray>Store"
+  size: 27
+  controls:
+    info-slot: 22
+    balance-slot: 26
+  entries:
+    example_category:
+      type: category
+      category: example
+      slot: 10
+      priority: 10
+    featured_example_rank:
+      type: item
+      item: example.example_rank
+      slot: 12
+      priority: 10
+
 # MiniMessage shown to the purchasing player after a successful purchase.
 # Placeholders: <player>, <item>
 messages:

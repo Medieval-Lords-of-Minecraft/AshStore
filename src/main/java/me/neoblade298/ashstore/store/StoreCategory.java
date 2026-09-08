@@ -71,4 +71,11 @@ public class StoreCategory {
     public List<StoreItem> getItems() {
         return items;
     }
+
+    public StoreItem getItem(String id) {
+        return items.stream()
+                .filter(item -> item.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
 }

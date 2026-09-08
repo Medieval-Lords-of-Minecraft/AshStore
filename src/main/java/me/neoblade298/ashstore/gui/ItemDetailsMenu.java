@@ -27,9 +27,9 @@ public class ItemDetailsMenu extends CoreInventory {
 
     private final StoreItem item;
     private final StoreItemDetails details;
-    private final ItemMenu parent;
+    private final StoreMenu parent;
 
-    public ItemDetailsMenu(Player player, StoreItem item, ItemMenu parent) {
+    public ItemDetailsMenu(Player player, StoreItem item, StoreMenu parent) {
         super(player, Bukkit.createInventory(null, 54,
                 NeoCore.miniMessage().deserialize(item.getDetails().getTitle())));
         this.item = item;
