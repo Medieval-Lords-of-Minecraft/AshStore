@@ -113,12 +113,6 @@ public abstract class StoreMenu extends CoreInventory {
         AshStore.inst().getLogger().info(p.getName() + " (" + p.getUniqueId()
                 + ") purchased " + item.getName() + " for " + price + " AshCoins.");
 
-        String message = AshStore.inst().getConfig().getString("messages.purchase",
-                "<green><player>, you successfully purchased <item>!");
-        p.sendMessage(NeoCore.miniMessage().deserialize(message,
-                Placeholder.unparsed("player", p.getName()),
-                Placeholder.parsed("item", item.getName())));
-
         String broadcast = AshStore.inst().getConfig().getString("messages.broadcast",
             "<yellow><player></yellow> just purchased <item> from <yellow>/store</yellow>!");
         if (broadcast != null && !broadcast.isBlank()) {

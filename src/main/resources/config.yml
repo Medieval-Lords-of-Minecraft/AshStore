@@ -28,10 +28,9 @@ root-menu:
       slot: 12
       priority: 10
 
-# MiniMessage messages sent after a successful purchase.
+# MiniMessage broadcast sent after a successful purchase.
 # Placeholders: <player>, <item>. Set broadcast to "" to disable announcements.
 messages:
-  purchase: "<green><player>, you successfully purchased <item>!"
   broadcast: "<yellow><player></yellow> just purchased <item> from <yellow>/store</yellow>!"
 
 # Annual sales use machine-local time. Start and end are MM-dd dates; both days
