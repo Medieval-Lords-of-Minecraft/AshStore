@@ -53,12 +53,17 @@ public final class SaleManager {
     }
 
     public long getPrice(long regularPrice) {
+        return getPriceDetails(regularPrice).salePrice();
+    }
+
+    public PriceDetails getPriceDetails(long regularPrice) {
         int discount = sales.stream()
                 .filter(sale -> sale.isActive(ZonedDateTime.now(zone)))
                 .mapToInt(SalePeriod::discountPercent)
                 .max()
                 .orElse(0);
-        return Math.max(0, Math.round(regularPrice * (100 - discount) / 100.0));
+        long salePrice = Math.max(0, Math.round(regularPrice * (100 - discount) / 100.0));
+        return new PriceDetails(regularPrice, salePrice, discount);
     }
 
     public synchronized void shutdown() {
@@ -167,6 +172,9 @@ public final class SaleManager {
     }
 
     private record SaleStart(SalePeriod sale, ZonedDateTime time) {
+    }
+
+    public record PriceDetails(long regularPrice, long salePrice, int discountPercent) {
     }
 
     private record SalePeriod(String id, String name, MonthDay start, MonthDay end,

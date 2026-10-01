@@ -10,7 +10,6 @@ import io.papermc.paper.registry.data.dialog.DialogBase;
 import io.papermc.paper.registry.data.dialog.DialogInstancesProvider;
 import io.papermc.paper.registry.data.dialog.action.DialogAction;
 import io.papermc.paper.registry.data.dialog.body.DialogBody;
-import me.neoblade298.ashstore.AshStore;
 import me.neoblade298.ashstore.player.PlayerData;
 import me.neoblade298.ashstore.player.PlayerManager;
 import me.neoblade298.ashstore.store.StoreItem;
@@ -26,28 +25,29 @@ public final class PurchaseConfirmationDialog {
 
     public static void show(Player player, StoreItem item, Runnable confirmAction) {
         DialogInstancesProvider dialogs = DialogInstancesProvider.instance();
-        long price = AshStore.inst().getSaleManager().getPrice(item.getPrice());
+        var price = PriceDisplay.getDetails(item.getPrice());
         PlayerData data = PlayerManager.get(player);
         ClickCallback.Options callbackOptions = ClickCallback.Options.builder()
                 .uses(1)
                 .build();
 
         ActionButton confirm = ActionButton.builder(Component.text("Confirm Purchase"))
-                .tooltip(Component.text("Spend " + price + " AshCoins"))
+                .tooltip(Component.text("Spend " + price.salePrice() + " AshCoins"))
                 .action(DialogAction.customClick((response, audience) -> confirmAction.run(), callbackOptions))
                 .build();
         ActionButton cancel = ActionButton.builder(Component.text("Cancel")).build();
 
         List<DialogBody> body = new java.util.ArrayList<>();
         body.add(DialogBody.plainMessage(NeoCore.miniMessage().deserialize(item.getName())));
-        body.add(DialogBody.plainMessage(NeoCore.miniMessage().deserialize(
-                "<gray>Purchase for <yellow>" + BalanceDisplay.format(price) + "</yellow> AshCoins?")));
+        PriceDisplay.confirmation(price).stream()
+                .map(DialogBody::plainMessage)
+                .forEach(body::add);
         body.add(DialogBody.plainMessage(BalanceDisplay.balanceLine(player)));
         if (data != null) {
-            if (data.canAfford(price)) {
+            if (data.canAfford(price.salePrice())) {
                 body.add(DialogBody.plainMessage(NeoCore.miniMessage().deserialize(
                         "<gray>Balance after purchase: <yellow>"
-                                + BalanceDisplay.format(data.getCoins() - price) + "</yellow> AshCoins")));
+                                + BalanceDisplay.format(data.getCoins() - price.salePrice()) + "</yellow> AshCoins")));
             } else {
                 body.add(DialogBody.plainMessage(NeoCore.miniMessage().deserialize(
                         "<red>You do not have enough AshCoins.")));

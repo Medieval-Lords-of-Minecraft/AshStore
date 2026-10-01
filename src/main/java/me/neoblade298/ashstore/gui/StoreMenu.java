@@ -37,10 +37,9 @@ public abstract class StoreMenu extends CoreInventory {
                 lore.add(NeoCore.miniMessage().deserialize("<green>Click to view details"));
             }
         } else if (item.isPurchasable()) {
-            long price = AshStore.inst().getSaleManager().getPrice(item.getPrice());
+            var price = PriceDisplay.getDetails(item.getPrice());
             lore.add(Component.empty());
-            lore.add(NeoCore.miniMessage().deserialize(
-                    "<gold>Price: <yellow>" + price + "</yellow> AshCoins"));
+            lore.addAll(PriceDisplay.lore(price));
             if (item.hasPermission() && !p.hasPermission(item.getPermission())) {
                 lore.add(NeoCore.miniMessage().deserialize("<red>You don't have access to this item"));
             } else if (item.hasDetails()) {
