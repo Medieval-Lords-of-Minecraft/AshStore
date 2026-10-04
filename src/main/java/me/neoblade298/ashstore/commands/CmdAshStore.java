@@ -107,8 +107,8 @@ public class CmdAshStore implements CommandExecutor, TabCompleter {
         }
 
         // Offline: adjust directly in SQL, off the main thread
-        OfflinePlayer offline = Bukkit.getOfflinePlayerIfCached(args[1]);
-        if (offline == null) {
+        OfflinePlayer offline = Bukkit.getOfflinePlayer(args[1]);
+        if (!offline.hasPlayedBefore()) {
             Util.msgRaw(sender, "<red>No player named '" + args[1] + "' has joined this server before.");
             return;
         }
