@@ -19,6 +19,13 @@ public class PlayerManager implements IOComponent {
     public static final String KEY = "AshStore-Coins";
 
     private static final HashMap<UUID, PlayerData> data = new HashMap<>();
+    private static final Object[] balanceLocks = new Object[64];
+
+    static {
+        for (int i = 0; i < balanceLocks.length; i++) {
+            balanceLocks[i] = new Object();
+        }
+    }
 
     public static PlayerData get(Player p) {
         return data.get(p.getUniqueId());
@@ -59,29 +66,40 @@ public class PlayerManager implements IOComponent {
                 return null;
             }
 
-            long current = 0;
-            try (PreparedStatement ps = con.prepareStatement(
-                    "SELECT coins FROM ashstore_coins WHERE uuid = ?")) {
-                ps.setString(1, uuid.toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        current = rs.getLong("coins");
+            synchronized (getBalanceLock(uuid)) {
+                PlayerData pd = data.get(uuid);
+                long current;
+                if (pd != null) {
+                    current = pd.getCoins();
+                } else {
+                    current = 0;
+                    try (PreparedStatement ps = con.prepareStatement(
+                            "SELECT coins FROM ashstore_coins WHERE uuid = ?")) {
+                        ps.setString(1, uuid.toString());
+                        try (ResultSet rs = ps.executeQuery()) {
+                            if (rs.next()) {
+                                current = rs.getLong("coins");
+                            }
+                        }
                     }
                 }
-            }
 
-            long updated = set ? amount : current + amount;
-            if (updated < 0) {
-                updated = 0;
-            }
+                long updated = set ? amount : current + amount;
+                if (updated < 0) {
+                    updated = 0;
+                }
 
-            try (PreparedStatement ps = con.prepareStatement(
-                    "REPLACE INTO ashstore_coins (uuid, coins) VALUES (?, ?)")) {
-                ps.setString(1, uuid.toString());
-                ps.setLong(2, updated);
-                ps.executeUpdate();
+                try (PreparedStatement ps = con.prepareStatement(
+                        "REPLACE INTO ashstore_coins (uuid, coins) VALUES (?, ?)")) {
+                    ps.setString(1, uuid.toString());
+                    ps.setLong(2, updated);
+                    ps.executeUpdate();
+                }
+                if (pd != null) {
+                    pd.setCoins(updated);
+                }
+                return updated;
             }
-            return updated;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -114,14 +132,22 @@ public class PlayerManager implements IOComponent {
     @Override
     public void savePlayer(Player p, Connection con, List<PreparedStatement> stmts) throws Exception {
         UUID uuid = p.getUniqueId();
-        PlayerData pd = data.get(uuid);
-        if (pd != null) {
-            stmts.add(pd.save(uuid, con));
+        synchronized (getBalanceLock(uuid)) {
+            PlayerData pd = data.get(uuid);
+            if (pd != null) {
+                try (PreparedStatement stmt = pd.save(uuid, con)) {
+                    stmt.executeUpdate();
+                }
+            }
         }
     }
 
     @Override
     public void cleanup(Connection con, List<PreparedStatement> stmts) throws Exception {
         data.clear();
+    }
+
+    private static Object getBalanceLock(UUID uuid) {
+        return balanceLocks[(uuid.hashCode() & Integer.MAX_VALUE) % balanceLocks.length];
     }
 }
