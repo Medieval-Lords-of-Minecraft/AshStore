@@ -33,26 +33,26 @@ public class PlayerData {
         return player;
     }
 
-    public long getCoins() {
+    public synchronized long getCoins() {
         return coins;
     }
 
-    public void setCoins(long coins) {
+    public synchronized void setCoins(long coins) {
         this.coins = Math.max(0, coins);
     }
 
-    public void addCoins(long amount) {
+    public synchronized void addCoins(long amount) {
         setCoins(this.coins + amount);
 		String symbol = amount > 0 ? "+" : "";
 		Util.msgRaw(player, "<yellow>" + symbol + amount + " AshCoins </yellow>(<gold>" + coins + "</gold>)");
     }
 
-    public boolean canAfford(long amount) {
+    public synchronized boolean canAfford(long amount) {
         return coins >= amount;
     }
 
     /** Deducts the amount if affordable. Returns true on success. */
-    public boolean deduct(long amount) {
+    public synchronized boolean deduct(long amount) {
         if (!canAfford(amount)) {
             return false;
         }
@@ -61,7 +61,7 @@ public class PlayerData {
         return true;
     }
 
-    public PreparedStatement save(UUID uuid, Connection con) throws SQLException {
+    public synchronized PreparedStatement save(UUID uuid, Connection con) throws SQLException {
         return new SQLInsertBuilder(SQLAction.REPLACE, "ashstore_coins")
                 .addValue("uuid", uuid.toString())
                 .addValue("coins", coins)
