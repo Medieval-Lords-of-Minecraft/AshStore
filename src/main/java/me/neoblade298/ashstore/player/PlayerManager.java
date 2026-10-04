@@ -4,9 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -18,7 +18,7 @@ public class PlayerManager implements IOComponent {
 
     public static final String KEY = "AshStore-Coins";
 
-    private static final HashMap<UUID, PlayerData> data = new HashMap<>();
+    private static final ConcurrentHashMap<UUID, PlayerData> data = new ConcurrentHashMap<>();
     private static final Object[] balanceLocks = new Object[64];
 
     static {
@@ -68,11 +68,12 @@ public class PlayerManager implements IOComponent {
 
             synchronized (getBalanceLock(uuid)) {
                 PlayerData pd = data.get(uuid);
-                long current;
                 if (pd != null) {
-                    current = pd.getCoins();
+                    synchronized (pd) {
+                        return writeAdjustedBalance(con, uuid, pd.getCoins(), amount, set, pd);
+                    }
                 } else {
-                    current = 0;
+                    long current = 0;
                     try (PreparedStatement ps = con.prepareStatement(
                             "SELECT coins FROM ashstore_coins WHERE uuid = ?")) {
                         ps.setString(1, uuid.toString());
@@ -82,23 +83,8 @@ public class PlayerManager implements IOComponent {
                             }
                         }
                     }
+                    return writeAdjustedBalance(con, uuid, current, amount, set, null);
                 }
-
-                long updated = set ? amount : current + amount;
-                if (updated < 0) {
-                    updated = 0;
-                }
-
-                try (PreparedStatement ps = con.prepareStatement(
-                        "REPLACE INTO ashstore_coins (uuid, coins) VALUES (?, ?)")) {
-                    ps.setString(1, uuid.toString());
-                    ps.setLong(2, updated);
-                    ps.executeUpdate();
-                }
-                if (pd != null) {
-                    pd.setCoins(updated);
-                }
-                return updated;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -114,18 +100,20 @@ public class PlayerManager implements IOComponent {
     @Override
     public void loadPlayer(Player p, Statement stmt) {
         UUID uuid = p.getUniqueId();
-        try {
-            ResultSet rs = stmt.executeQuery(
-                "SELECT * FROM ashstore_coins WHERE uuid = '" + uuid + "'"
-            );
+        synchronized (getBalanceLock(uuid)) {
+            try {
+                ResultSet rs = stmt.executeQuery(
+                    "SELECT * FROM ashstore_coins WHERE uuid = '" + uuid + "'"
+                );
 
-            if (rs.next()) {
-                data.put(uuid, new PlayerData(p, rs));
-            } else {
-                data.put(uuid, new PlayerData(p));
+                if (rs.next()) {
+                    data.put(uuid, new PlayerData(p, rs));
+                } else {
+                    data.put(uuid, new PlayerData(p));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -135,8 +123,10 @@ public class PlayerManager implements IOComponent {
         synchronized (getBalanceLock(uuid)) {
             PlayerData pd = data.get(uuid);
             if (pd != null) {
-                try (PreparedStatement stmt = pd.save(uuid, con)) {
-                    stmt.executeUpdate();
+                synchronized (pd) {
+                    try (PreparedStatement stmt = pd.save(uuid, con)) {
+                        stmt.executeBatch();
+                    }
                 }
             }
         }
@@ -149,5 +139,24 @@ public class PlayerManager implements IOComponent {
 
     private static Object getBalanceLock(UUID uuid) {
         return balanceLocks[(uuid.hashCode() & Integer.MAX_VALUE) % balanceLocks.length];
+    }
+
+    private static long writeAdjustedBalance(Connection con, UUID uuid, long current,
+            long amount, boolean set, PlayerData pd) throws Exception {
+        long updated = set ? amount : current + amount;
+        if (updated < 0) {
+            updated = 0;
+        }
+
+        try (PreparedStatement ps = con.prepareStatement(
+                "REPLACE INTO ashstore_coins (uuid, coins) VALUES (?, ?)")) {
+            ps.setString(1, uuid.toString());
+            ps.setLong(2, updated);
+            ps.executeUpdate();
+        }
+        if (pd != null) {
+            pd.setCoins(updated);
+        }
+        return updated;
     }
 }
