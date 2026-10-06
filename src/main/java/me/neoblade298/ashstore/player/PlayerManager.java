@@ -35,6 +35,36 @@ public class PlayerManager implements IOComponent {
         return data.get(uuid);
     }
 
+    /**
+     * Reads an offline player's balance directly from SQL.
+     *
+     * @return the player's balance, zero when no balance has been saved, or {@code null} on failure.
+     */
+    public static Long getOfflineBalance(UUID uuid) {
+        try (Connection con = NeoCore.getConnection(KEY)) {
+            if (con == null) {
+                return null;
+            }
+
+            synchronized (getBalanceLock(uuid)) {
+                PlayerData pd = data.get(uuid);
+                if (pd != null) {
+                    return pd.getCoins();
+                }
+                try (PreparedStatement ps = con.prepareStatement(
+                        "SELECT coins FROM ashstore_coins WHERE uuid = ?")) {
+                    ps.setString(1, uuid.toString());
+                    try (ResultSet rs = ps.executeQuery()) {
+                        return rs.next() ? rs.getLong("coins") : 0;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     /** Creates the coins table once, at startup (not per login). */
     public static void init() {
         try (Connection con = NeoCore.getConnection(KEY)) {

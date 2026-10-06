@@ -42,13 +42,7 @@ public class CmdAshStore implements CommandExecutor, TabCompleter {
                     Util.msgRaw(sender, "<red>You don't have permission to do that.");
                     return true;
                 }
-                if (!(sender instanceof Player p)) {
-                    Util.msgRaw(sender, "<red>Only players have an AshCoins balance.");
-                    return true;
-                }
-                PlayerData data = PlayerManager.get(p);
-                long coins = data == null ? 0 : data.getCoins();
-                Util.msgRaw(p, "<gold>Balance: <yellow>" + coins + "</yellow> AshCoins");
+                handleBalance(sender, args);
             }
             case "reload" -> {
                 if (!sender.hasPermission(RELOAD_PERMISSION)) {
@@ -64,6 +58,51 @@ public class CmdAshStore implements CommandExecutor, TabCompleter {
             default -> Util.msgRaw(sender, "<red>Unknown subcommand. Use /ashstore for the store.");
         }
         return true;
+    }
+
+    private void handleBalance(CommandSender sender, String[] args) {
+        if (args.length < 2) {
+            if (!(sender instanceof Player player)) {
+                Util.msgRaw(sender, "<red>Usage: /ashstore balance <player>");
+                return;
+            }
+            PlayerData data = PlayerManager.get(player);
+            long coins = data == null ? 0 : data.getCoins();
+            Util.msgRaw(sender, "<gold>Balance: <yellow>" + coins + "</yellow> AshCoins");
+            return;
+        }
+
+        Player online = Bukkit.getPlayerExact(args[1]);
+        if (online != null) {
+            PlayerData data = PlayerManager.get(online);
+            if (data == null) {
+                Util.msgRaw(sender, "<red>That player's data is still loading, try again shortly.");
+                return;
+            }
+            sendBalance(sender, online.getName(), data.getCoins());
+            return;
+        }
+
+        OfflinePlayer offline = Bukkit.getOfflinePlayer(args[1]);
+        if (!offline.hasPlayedBefore()) {
+            Util.msgRaw(sender, "<red>No player named '" + args[1] + "' has joined this server before.");
+            return;
+        }
+        String name = offline.getName() != null ? offline.getName() : args[1];
+        Bukkit.getScheduler().runTaskAsynchronously(AshStore.inst(), () -> {
+            Long coins = PlayerManager.getOfflineBalance(offline.getUniqueId());
+            Bukkit.getScheduler().runTask(AshStore.inst(), () -> {
+                if (coins == null) {
+                    Util.msgRaw(sender, "<red>Failed to load " + name + "'s balance.");
+                } else {
+                    sendBalance(sender, name, coins);
+                }
+            });
+        });
+    }
+
+    private void sendBalance(CommandSender sender, String name, long coins) {
+        Util.msgRaw(sender, "<gold>" + name + "'s balance: <yellow>" + coins + "</yellow> AshCoins");
     }
 
     private void handleAdjust(CommandSender sender, String[] args) {
@@ -101,8 +140,7 @@ public class CmdAshStore implements CommandExecutor, TabCompleter {
             } else {
                 data.addCoins(delta);
             }
-            Util.msgRaw(sender, "<red>" + online.getName() + "<gray> now has <yellow>"
-                    + data.getCoins() + " AshCoins</yellow>.");
+            sendAdjustmentConfirmation(sender, online.getName(), sub, amount, data.getCoins());
             return;
         }
 
@@ -121,11 +159,21 @@ public class CmdAshStore implements CommandExecutor, TabCompleter {
                 if (result == null) {
                     Util.msgRaw(sender, "<red>Failed to update " + name + "'s balance.");
                 } else {
-                    Util.msgRaw(sender, "<green>" + name + " now has <yellow>"
-                            + result + "</yellow> AshCoins.");
+                    sendAdjustmentConfirmation(sender, name, sub, amount, result);
                 }
             });
         });
+    }
+
+    private void sendAdjustmentConfirmation(CommandSender sender, String name, String sub, long amount, long balance) {
+        if (sub.equals("give")) {
+            String symbol = amount > 0 ? "+" : "";
+            Util.msgRaw(sender, "<green>" + name + ": <yellow>" + symbol + amount
+                    + " AshCoins</yellow> (<gold>" + balance + "</gold>)");
+        } else {
+            Util.msgRaw(sender, "<green>" + name + " now has <yellow>"
+                    + balance + "</yellow> AshCoins.");
+        }
     }
 
     @Override
@@ -139,8 +187,11 @@ public class CmdAshStore implements CommandExecutor, TabCompleter {
             addCompletion(out, args[0], "reload", sender.hasPermission(RELOAD_PERMISSION));
         } else if (args.length == 2) {
             String sub = args[0].toLowerCase();
-            if (sender.hasPermission(COINS_PERMISSION)
-                    && (sub.equals("give") || sub.equals("take") || sub.equals("set"))) {
+            boolean canCompletePlayer = sender.hasPermission(BALANCE_PERMISSION)
+                    && (sub.equals("balance") || sub.equals("bal"));
+            canCompletePlayer |= sender.hasPermission(COINS_PERMISSION)
+                    && (sub.equals("give") || sub.equals("take") || sub.equals("set"));
+            if (canCompletePlayer) {
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     if (p.getName().toLowerCase().startsWith(args[1].toLowerCase())) {
                         out.add(p.getName());

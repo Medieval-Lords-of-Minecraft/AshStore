@@ -13,7 +13,7 @@ permissions:
     description: Allows opening the store
     default: true
   ashstore.balance:
-    description: Allows viewing your AshCoins balance
+    description: Allows viewing AshCoins balances
     default: true
   ashstore.admin:
     description: Grants all AshStore administrative permissions
