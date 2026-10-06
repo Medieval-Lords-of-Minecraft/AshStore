@@ -62,7 +62,7 @@ public final class PurchaseConfirmationDialog {
 
         Dialog dialog = Dialog.create(factory -> factory.empty()
                 .base(base)
-                .type(dialogs.confirmation(cancel, confirm)));
+                .type(dialogs.confirmation(confirm, cancel)));
         player.showDialog(dialog);
     }
 }
