@@ -12,6 +12,7 @@ import me.neoblade298.ashstore.AshStore;
 import me.neoblade298.ashstore.player.PlayerData;
 import me.neoblade298.ashstore.player.PlayerManager;
 import me.neoblade298.ashstore.store.SaleLog;
+import me.neoblade298.ashstore.store.SaleManager.PriceDetails;
 import me.neoblade298.ashstore.store.StoreItem;
 import me.neoblade298.neocore.bukkit.NeoCore;
 import me.neoblade298.neocore.bukkit.inventories.CoreInventory;
@@ -94,7 +95,8 @@ public abstract class StoreMenu extends CoreInventory {
             return;
         }
 
-        long price = AshStore.inst().getSaleManager().getPrice(item.getPrice());
+        PriceDetails priceDetails = AshStore.inst().getSaleManager().getPriceDetails(item.getPrice());
+        long price = priceDetails.salePrice();
         if (!data.canAfford(price)) {
             Util.msgRaw(p, "<red>You need <yellow>" + price
                     + "</yellow> AshCoins but only have <yellow>" + data.getCoins() + "</yellow>.");
@@ -112,7 +114,7 @@ public abstract class StoreMenu extends CoreInventory {
 
         AshStore.inst().getLogger().info(p.getName() + " (" + p.getUniqueId()
                 + ") purchased " + item.getName() + " for " + price + " AshCoins.");
-        SaleLog.log(p, item, price);
+        SaleLog.log(p, item, priceDetails);
 
         String broadcast = AshStore.inst().getConfig().getString("messages.broadcast",
             "<yellow><player></yellow> just purchased <item> from <yellow>/store</yellow>!");
