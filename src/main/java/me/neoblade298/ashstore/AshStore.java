@@ -7,6 +7,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import me.neoblade298.ashstore.commands.CmdAshStore;
 import me.neoblade298.ashstore.player.PlayerManager;
+import me.neoblade298.ashstore.store.SaleLog;
 import me.neoblade298.ashstore.store.SaleManager;
 import me.neoblade298.ashstore.store.StoreManager;
 import me.neoblade298.neocore.bukkit.NeoCore;
@@ -31,6 +32,7 @@ public class AshStore extends JavaPlugin {
         // Register IO component for AshCoins load/save, then create the table once
         NeoCore.registerIOComponent(this, new PlayerManager(), PlayerManager.KEY);
         PlayerManager.init();
+        SaleLog.init();
 
         // Copy the default category on first run, then load all categories
         saveDefaultCategory();
