@@ -6,7 +6,7 @@ depend: [NeoCore]
 commands:
   ashstore:
     description: Open the AshStore or manage AshCoins
-    aliases: [store, ashcoins]
+    aliases: [store, ashcoins, shop]
     permission: ashstore.use
 permissions:
   ashstore.use:
