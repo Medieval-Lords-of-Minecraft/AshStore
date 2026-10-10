@@ -29,12 +29,15 @@ public class CmdAshStore implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
-            if (!sender.hasPermission(USE_PERMISSION)) {
-                Util.msgRaw(sender, "<red>You don't have permission to do that.");
+            if (!(sender instanceof Player p)) {
+                Util.msgRaw(sender, "<gold>Console commands:");
+                Util.msgRaw(sender, "<yellow>/" + label + " balance <player>");
+                Util.msgRaw(sender, "<yellow>/" + label + " <give|take|set> <player> <amount>");
+                Util.msgRaw(sender, "<yellow>/" + label + " reload");
                 return true;
             }
-            if (!(sender instanceof Player p)) {
-                Util.msgRaw(sender, "<red>Only players can open the store.");
+            if (!sender.hasPermission(USE_PERMISSION)) {
+                Util.msgRaw(sender, "<red>You don't have permission to do that.");
                 return true;
             }
             new RootMenu(p).openInventory();

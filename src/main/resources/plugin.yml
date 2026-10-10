@@ -16,13 +16,13 @@ permissions:
     default: true
   ashstore.admin:
     description: Grants all AshStore administrative permissions
-    default: false
+    default: op
     children:
       ashstore.admin.coins: true
       ashstore.admin.reload: true
   ashstore.admin.coins:
     description: Allows giving, taking, and setting player AshCoins
-    default: false
+    default: op
   ashstore.admin.reload:
     description: Allows reloading AshStore configuration and categories
-    default: false
+    default: op
