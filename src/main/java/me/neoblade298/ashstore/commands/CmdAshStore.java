@@ -21,6 +21,7 @@ import me.neoblade298.neocore.bukkit.util.Util;
 
 public class CmdAshStore implements CommandExecutor, TabCompleter {
 
+    private static final String USE_PERMISSION = "ashstore.use";
     private static final String BALANCE_PERMISSION = "ashstore.balance";
     private static final String COINS_PERMISSION = "ashstore.admin.coins";
     private static final String RELOAD_PERMISSION = "ashstore.admin.reload";
@@ -28,6 +29,10 @@ public class CmdAshStore implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
+            if (!sender.hasPermission(USE_PERMISSION)) {
+                Util.msgRaw(sender, "<red>You don't have permission to do that.");
+                return true;
+            }
             if (!(sender instanceof Player p)) {
                 Util.msgRaw(sender, "<red>Only players can open the store.");
                 return true;

@@ -7,17 +7,16 @@ commands:
   ashstore:
     description: Open the AshStore or manage AshCoins
     aliases: [store, ashcoins, shop]
-    permission: ashstore.use
 permissions:
   ashstore.use:
     description: Allows opening the store
-    default: true
+    default: false
   ashstore.balance:
     description: Allows viewing AshCoins balances
     default: true
   ashstore.admin:
     description: Grants all AshStore administrative permissions
-    default: op
+    default: false
     children:
       ashstore.admin.coins: true
       ashstore.admin.reload: true
