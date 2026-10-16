@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import me.neoblade298.neocore.bukkit.util.Util;
@@ -42,9 +43,15 @@ public class PlayerData {
     }
 
     public synchronized void addCoins(long amount) {
+        addCoins(amount, null);
+    }
+
+    /** Includes the payer in the notification when receiving coins. */
+    public synchronized void addCoins(long amount, CommandSender payer) {
         setCoins(this.coins + amount);
 		String symbol = amount > 0 ? "+" : "";
-		Util.msgRaw(player, "<yellow>" + symbol + amount + " AshCoins </yellow>(<gold>" + coins + "</gold>)");
+        String source = amount > 0 && payer != null ? " from " + payer.getName() : "";
+		Util.msgRaw(player, "<yellow>" + symbol + amount + " AshCoins" + source + " </yellow>(<gold>" + coins + "</gold>)");
     }
 
     public synchronized boolean canAfford(long amount) {

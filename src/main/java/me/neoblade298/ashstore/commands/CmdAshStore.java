@@ -146,7 +146,7 @@ public class CmdAshStore implements CommandExecutor, TabCompleter {
             if (set) {
                 data.setCoins(amount);
             } else {
-                data.addCoins(delta);
+                data.addCoins(delta, sender);
             }
             sendAdjustmentConfirmation(sender, online.getName(), sub, amount, data.getCoins());
             return;
