@@ -3,6 +3,7 @@ version: '${project.version}'
 main: me.neoblade298.ashstore.AshStore
 api-version: '1.21'
 depend: [NeoCore]
+softdepend: [DiscordSRV]
 commands:
   ashstore:
     description: Open the AshStore or manage AshCoins

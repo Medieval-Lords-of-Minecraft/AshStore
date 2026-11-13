@@ -32,6 +32,16 @@ root-menu:
 # Placeholders: <player>, <item>. Set broadcast to "" to disable announcements.
 messages:
   broadcast: "<yellow><player></yellow> just purchased <item> from <yellow>/store</yellow>!"
+  # Independent Discord announcement; MiniMessage formatting is stripped.
+  # Placeholders: <player>, <item>. Set to "" to disable Discord announcements.
+  discord-broadcast: "<player> just purchased <item> from /store!"
+
+# Requires DiscordSRV to be installed and connected. No separate bot token is needed.
+# Leave channel empty to use DiscordSRV's main channel, or specify a game-channel
+# name from DiscordSRV's Channels mapping (not a Discord channel ID).
+# Changes here and to messages take effect with /ashstore reload.
+discord:
+  channel: ""
 
 # Annual sales use machine-local time. Start and end are MM-dd dates; both days
 # are included, and each boundary is midnight. Cross-year periods are supported.

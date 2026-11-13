@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import me.neoblade298.ashstore.AshStore;
 import me.neoblade298.ashstore.player.PlayerData;
 import me.neoblade298.ashstore.player.PlayerManager;
+import me.neoblade298.ashstore.store.DiscordAnnouncements;
 import me.neoblade298.ashstore.store.SaleLog;
 import me.neoblade298.ashstore.store.SaleManager.PriceDetails;
 import me.neoblade298.ashstore.store.StoreItem;
@@ -123,6 +124,7 @@ public abstract class StoreMenu extends CoreInventory {
                 Placeholder.unparsed("player", p.getName()),
                 Placeholder.parsed("item", item.getName())));
         }
+        DiscordAnnouncements.announcePurchase(p.getName(), item.getName());
         rebuild();
         openInventory();
     }
