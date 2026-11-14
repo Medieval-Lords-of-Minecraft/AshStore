@@ -139,22 +139,20 @@ public class CmdAshStore implements CommandExecutor, TabCompleter {
         Player online = Bukkit.getPlayerExact(args[1]);
         if (online != null) {
             PlayerData data = PlayerManager.get(online);
-            if (data == null) {
-                Util.msgRaw(sender, "<red>That player's data is still loading, try again shortly.");
+            if (data != null) {
+                if (set) {
+                    data.setCoins(amount);
+                } else {
+                    data.addCoins(delta, sender);
+                }
+                sendAdjustmentConfirmation(sender, online.getName(), sub, amount, data.getCoins());
                 return;
             }
-            if (set) {
-                data.setCoins(amount);
-            } else {
-                data.addCoins(delta, sender);
-            }
-            sendAdjustmentConfirmation(sender, online.getName(), sub, amount, data.getCoins());
-            return;
         }
 
-        // Offline: adjust directly in SQL, off the main thread
-        OfflinePlayer offline = Bukkit.getOfflinePlayer(args[1]);
-        if (!offline.hasPlayedBefore()) {
+        // SQL adjustments also synchronize with login loading and update data if it loads first.
+        OfflinePlayer offline = online != null ? online : Bukkit.getOfflinePlayer(args[1]);
+        if (online == null && !offline.hasPlayedBefore()) {
             Util.msgRaw(sender, "<red>No player named '" + args[1] + "' has joined this server before.");
             return;
         }

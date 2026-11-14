@@ -85,7 +85,8 @@ public class PlayerManager implements IOComponent {
     }
 
     /**
-     * Adjusts an offline player's balance directly in SQL.
+     * Adjusts an offline or still-loading player's balance directly in SQL.
+     * Synchronizes with loading and saving, updating cached data if it has loaded.
      *
      * @param set when true, sets the balance to {@code amount}; otherwise adds {@code amount} (may be negative).
      * @return the resulting balance, or {@code null} on failure.
